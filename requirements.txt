@@ -1,0 +1,32 @@
+# Offline screen translator - runtime dependencies
+#
+#   pip install -r requirements.txt
+#
+# or simply run install.bat, which also handles the Visual C++ runtime DLLs that
+# onnxruntime needs on machines without the VC++ redistributable installed.
+
+# --- screen capture ---
+mss>=10.0
+pillow>=10.0
+numpy>=1.24
+
+# --- offline OCR (PP-OCRv4 ONNX models are bundled inside this wheel) ---
+rapidocr-onnxruntime==1.4.4
+onnxruntime>=1.17
+opencv-python>=4.8
+
+# --- PDF: reading the text layer, and rendering a scanned page for OCR ---
+# pypdfium2, not PyMuPDF. PyMuPDF is AGPL-3.0: shipping it obliges the whole distribution
+# to be AGPL, and its commercial licence is sold by Artifex rather than by us. pypdfium2
+# wraps the same PDFium engine under BSD-3-Clause / Apache-2.0.
+pypdfium2>=4,<6
+
+# --- offline translation (tokenizer only; inference runs on onnxruntime) ---
+transformers>=4.40
+tokenizers>=0.15
+sentencepiece>=0.1.99
+# Marian's tokenizer normalises text better with sacremoses present.
+sacremoses>=0.1
+
+# --- ships the MSVC runtime DLLs used by the native wheels above ---
+msvc-runtime

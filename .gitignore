@@ -1,0 +1,65 @@
+# 虚拟环境与模型：体积大且与机器绑定，一律不进仓库
+.venv/
+.venv*/
+models/
+
+# 运行期产物
+logs/
+__pycache__/
+*.py[cod]
+
+# 用户数据（各自机器上生成，不该被覆盖）
+config.json
+glossary.json
+glossary.tsv
+
+# 测试脚本的输出
+tests/*.log
+tests/*.png
+# 测试现场造出来的文件（每次运行都会重建，不该进仓库）
+tests/docx_work/
+tests/docx_real_work/
+tests/xlsx_work/
+tests/xlsx_real_work/
+tests/online_work/
+tests/zh_ru_work/
+tests/gloss_engine_work/
+tests/glossary_files_work/
+tests/glossary_builtin_work/
+tests/glossary_tsv_work/
+tests/cfg.json
+tests/glossary_test.*
+tests/glossary_broken.json
+tests/shellicon_*.png
+tests/desktop_shot.png
+tests/crop_*.png
+tests/col_*.png
+tests/row_*.png
+tests/tile_*.png
+tests/compare_*.png
+tests/final_icon.png
+tests/sample.png
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# 内部文档：写了市场调研、对标、客户渠道和下一步计划，不进公开仓库
+交接说明.md
+
+# 别的工作流留在工作区里的东西（不是本项目的产物）
+.dsh-vision-router/
+_dev/
+build/
+video-service/
+视频下载/
+install-gh.sh
+电脑配置单-*.md
+搬剩余到E盘.*
+
+# 与本项目无关、但恰好放在工作区里的文件（别的工作流的产物）
+tests/douyin-*.cjs
+tests/hindsight-acceptance.mjs
+tests/*.err
