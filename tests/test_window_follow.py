@@ -35,7 +35,7 @@ TITLE = "模拟聊天窗口-跟随测试"
 LINE = "Цена указана за одну тонну без доставки."
 W, H = 720, 260
 POSITIONS = [(240, 300), (900, 220), (300, 620)]
-SECONDS = 46
+SECONDS = 80
 
 
 def main() -> int:
@@ -92,8 +92,13 @@ def main() -> int:
         while time.time() - started < SECONDS:
             elapsed = time.time() - started
 
-            # Drag the window three times, several seconds apart.
-            if moves_done < len(POSITIONS) and elapsed > 6 + moves_done * 11:
+            # Drag the window three times, several seconds apart. The spacing has to
+            # exceed one full cycle (recognition + translation), because the capture
+            # rectangle is re-resolved at the top of a cycle: a move that lands mid-cycle
+            # is picked up by the next one and the assertion below would count a move that
+            # had no chance to be seen yet. Measured here at ~7 s recognition + ~4 s
+            # translation for a full window, so 22 s apart leaves room.
+            if moves_done < len(POSITIONS) and elapsed > 6 + moves_done * 22:
                 x, y = POSITIONS[moves_done]
                 root.geometry(f"+{x}+{y}")
                 root.update()

@@ -130,6 +130,10 @@ class Pipeline(threading.Thread):
         self._pending = ""
         self._pending_count = 0
         self._defer_count = 0
+        #: When the current _pending text was first held, for the settle safety valve.
+        self._pending_since = 0.0
+        #: Translate anyway once a read has been held this long, whatever settle_frames says.
+        self.settle_budget = 4.0
         self._blank_count = 0
         self._error_streak = 0
         #: Translated units, keyed by their source text. A page scrolls, a cursor blinks,
@@ -140,6 +144,16 @@ class Pipeline(threading.Thread):
         #: How many units the last frame actually sent to the engine (not how many it
         #: had), which is the number that explains a slow first frame versus a fast one.
         self._last_translated = 0
+        #: Downsampled previous frame, for "has the screen actually changed".
+        self._last_frame_small = None
+        #: Last OCR result, reused while the screen is unchanged.
+        self._last_ocr = None
+        #: How many NEW units one cycle may translate. Each is a separate inference
+        #: (~0.9 s for en->zh, more for the two-hop pairs), so a window with forty lines
+        #: would otherwise take half a minute before the first word appeared. The extras
+        #: are filled in by the following cycles, which cost almost nothing for the lines
+        #: already cached.
+        self.unit_budget = 5
 
     # -- public API --------------------------------------------------------
     def update_config(self, cfg: AppConfig) -> None:
@@ -311,12 +325,29 @@ class Pipeline(threading.Thread):
                 return False
 
         self._defer_count = 0
-        if text != self._pending:
+        # Stability is judged with the same tolerance the jitter filter above uses, not by
+        # byte equality. Byte equality never happens on a live window - antialiased text
+        # gives a slightly different read almost every frame - so with settle_frames=5 the
+        # gate stayed shut and the program sat there recognising forever without ever
+        # translating, which is exactly "翻了半天没翻出来".
+        now = time.perf_counter()
+        if self._pending and _is_jitter(text, self._pending, cfg.jitter_tolerance):
+            self._pending_count += 1
+        else:
             self._pending = text
             self._pending_count = 1
-        else:
-            self._pending_count += 1
-        return self._pending_count >= max(1, cfg.settle_frames)
+        if not self._pending_since:
+            self._pending_since = now
+
+        settled = self._pending_count >= max(1, cfg.settle_frames)
+        # Safety valve. settle_frames is a preference about *when* to translate, never a
+        # reason not to: on a slow OCR every frame costs seconds, so N frames can mean a
+        # minute of nothing. Past this, translate what is on screen.
+        overdue = (now - self._pending_since) >= self.settle_budget
+        if settled or overdue:
+            self._pending_since = 0.0
+            return True
+        return False
 
     # -- main loop ---------------------------------------------------------
     def run(self) -> None:  # noqa: C901 - a long but linear worker loop
@@ -370,8 +401,19 @@ class Pipeline(threading.Thread):
                 frame = self._grab(cfg, target)
                 capture_ms = (time.perf_counter() - t0) * 1000
 
-                result = ocr.recognize(frame)
-                ocr_ms = result.elapsed * 1000
+                if self._screen_changed(frame):
+                    result = ocr.recognize(frame)
+                    self._last_ocr = result
+                    ocr_ms = result.elapsed * 1000
+                else:
+                    # Nothing moved enough to be worth reading again. Reusing the previous
+                    # result is what makes a still screen cost nothing instead of the full
+                    # several seconds of recognition.
+                    result = self._last_ocr
+                    ocr_ms = 0.0
+                    if result is None:
+                        self._sleep_rest(cycle_start, interval)
+                        continue
             except Exception as exc:  # noqa: BLE001
                 self._error_streak += 1
                 if self._error_streak <= 2:
@@ -390,6 +432,7 @@ class Pipeline(threading.Thread):
                     self._pending = ""
                     self._pending_count = 0
                     self._defer_count = 0
+                    self._pending_since = 0.0
                     self._emit(Event(kind=RESULT, changed=True, capture_ms=capture_ms, ocr_ms=ocr_ms))
                 self._sleep_rest(cycle_start, interval)
                 continue
@@ -407,6 +450,7 @@ class Pipeline(threading.Thread):
                 self._last_committed = text
                 self._pending = text
                 self._pending_count = 0
+                self._pending_since = 0.0
                 glossary = self._ensure_glossary(cfg)
                 # The lines as the recogniser saw them, not the flattened string: the
                 # layout is the only thing that tells the reader which part of the page
@@ -415,8 +459,15 @@ class Pipeline(threading.Thread):
                 if not line_texts:
                     line_texts = [text]
                 try:
-                    translation, translate_ms, sent = self._translate_units(
+                    translation, translate_ms, sent, shown = self._translate_units(
                         line_texts, translator, glossary, cfg)
+                    if shown:
+                        text = shown
+                    if sent >= self.unit_budget:
+                        # There was more left than this cycle's budget. Do not mark the
+                        # frame as done, or the gate below treats the half-translated
+                        # page as finished and the rest is never filled in.
+                        self._last_committed = ""
                     self._last_translation = translation
                     self._last_translated = sent
                     changed = True
@@ -444,6 +495,30 @@ class Pipeline(threading.Thread):
 
         self._status("后台线程已停止")
 
+
+    def _screen_changed(self, frame) -> bool:
+        """Did the captured frame change enough to be worth reading again?
+
+        Recognition is the expensive half of a frame - measured at ~7 s for a 900x700
+        window with 42 lines on this machine. A blinking cursor, a clock ticking or a
+        spinner changes a few hundred pixels out of half a million, and re-reading the
+        whole window for that is most of why the program felt slow while nothing was
+        happening. Compared on a 4x downsampled copy with a per-pixel tolerance, so
+        animation noise does not count as change.
+        """
+        import numpy as np
+
+        try:
+            small = frame[::4, ::4, :3].astype(np.int16)
+        except Exception:  # noqa: BLE001
+            return True
+        previous = self._last_frame_small
+        self._last_frame_small = small
+        if previous is None or previous.shape != small.shape:
+            return True
+        delta = np.abs(small - previous).max(axis=2)
+        changed = float((delta > 12).mean())
+        return changed > 0.004
 
     def _translate_units(self, line_texts, translator, glossary, cfg):
         """Translate line by line, keeping the layout, reusing what has not changed.
@@ -479,7 +554,7 @@ class Pipeline(threading.Thread):
             else:
                 units.append(line)
         if not units:
-            return "", 0.0, 0
+            return "", 0.0, 0, ""
 
         started = time.perf_counter()
         pieces: list[str] = []
@@ -488,6 +563,13 @@ class Pipeline(threading.Thread):
             cached = self._unit_cache.get(unit)
             if cached is not None:
                 pieces.append(cached)
+                continue
+            if sent >= self.unit_budget:
+                # Out of budget for this cycle. Show the original line rather than an
+                # empty one, and leave it in the cache-miss state so the next cycle picks
+                # it up: a 42-line window costs 42 inferences at ~0.9 s each, and doing
+                # them all before showing anything is what "翻了半天没翻出来" felt like.
+                pieces.append(unit)
                 continue
             src = unit
             if glossary is not None:
@@ -505,7 +587,10 @@ class Pipeline(threading.Thread):
         # Bounded, so a long session in front of a scrolling feed cannot grow forever.
         while len(self._unit_cache) > 4000:
             self._unit_cache.pop(next(iter(self._unit_cache)))
-        return "\n".join(pieces), (time.perf_counter() - started) * 1000, sent
+        # The units come back too: the 原文 pane has to show the same breaks the
+        # translation has, otherwise "分行" looks unfixed even when it is not.
+        return ("\n".join(pieces), (time.perf_counter() - started) * 1000, sent,
+                "\n".join(units))
 
     def _grab(self, cfg: AppConfig, target: tuple[int, int, int, int]):
         """Capture what the user selected, preferring the window's own drawing.

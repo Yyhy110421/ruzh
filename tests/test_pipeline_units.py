@@ -66,7 +66,7 @@ def main() -> int:
     print("一、分行的内容，译完还是分行的")
     print("=" * 78)
     lines = ["ДОГОВОР ПОСТАВКИ", "Цена 1200 рублей", "Срок поставки 30 дней"]
-    out, ms, sent = pipeline._translate_units(lines, route, None, cfg)
+    out, ms, sent, _shown = pipeline._translate_units(lines, route, None, cfg)
     got = out.split("\n")
     check(len(got) == 3, f"三行进去，三行出来：{len(got)}", repr(out))
     check(sent == 3, f"送了三段：{sent}")
@@ -81,7 +81,7 @@ def main() -> int:
     wrapped = ["Настоящий договор заключён между ООО Ромашка",
                "и ООО Лютик о поставке товара."]
     route2 = StubRoute()
-    out2, _, sent2 = pipeline._translate_units(wrapped, route2, None, cfg)
+    out2, _, sent2, _ = pipeline._translate_units(wrapped, route2, None, cfg)
     check(sent2 == 1, f"两行合成一段送出去：{sent2}", repr(out2))
     check("Лютик" in out2, f"后半句在同一段里：{out2!r}")
     print()
@@ -96,7 +96,7 @@ def main() -> int:
 
     route3.seen.clear()
     second = ["Строка один", "Строка два ИЗМЕНИЛАСЬ", "Строка три"]
-    out3, _, sent3 = pipeline._translate_units(second, route3, None, cfg)
+    out3, _, sent3, _ = pipeline._translate_units(second, route3, None, cfg)
     check(sent3 == 1, f"第二遍只翻了一段：{sent3}", f"实际请求 {route3.seen}")
     check(len(route3.seen) == 1, f"引擎只被调一次：{len(route3.seen)}")
     check("ИЗМЕНИЛАСЬ" in out3, "改的那行在结果里")
@@ -121,9 +121,9 @@ def main() -> int:
     print("=" * 78)
     print("五、空输入不炸")
     print("=" * 78)
-    out5, ms5, sent5 = pipeline._translate_units([], StubRoute(), None, cfg)
+    out5, ms5, sent5, _ = pipeline._translate_units([], StubRoute(), None, cfg)
     check(out5 == "" and sent5 == 0, f"空列表 -> 空译文：{out5!r}")
-    out6, _, _ = pipeline._translate_units(["   ", ""], StubRoute(), None, cfg)
+    out6, _, _, _ = pipeline._translate_units(["   ", ""], StubRoute(), None, cfg)
     check(out6 == "", f"全是空白也空着：{out6!r}")
     print()
 

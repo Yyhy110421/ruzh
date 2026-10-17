@@ -670,6 +670,19 @@ class App(tk.Tk):
         self.status_var.set(message)
 
     # ------------------------------------------------------------ screen mode
+    def _save(self) -> None:
+        """Persist the config.
+
+        The window-selection handlers used to call only _push(), so the selection lived in
+        memory and was gone after a restart: "选完窗口重启就没了". Only the fixed-region path
+        saved, which is why config.json on disk still said region mode while the running
+        program was following a window.
+        """
+        try:
+            config_mod.save(self.cfg)
+        except Exception:  # noqa: BLE001
+            pass
+
     def clear_region(self) -> None:
         """Forget the current selection, so Start refuses to run again.
 
@@ -718,6 +731,7 @@ class App(tk.Tk):
         self._sync_from_config()
         self._apply_overlay_settings()
         self._push()
+        self._save()
         self._status(f"已选中窗口：{info.label}")
         self.log(f"目标窗口 = {info.title} ({info.process_name}) "
                  f"{info.client_width}x{info.client_height}")
@@ -761,6 +775,7 @@ class App(tk.Tk):
         self._sync_from_config()
         self._apply_overlay_settings()
         self._push()
+        self._save()
         self._status("窗口内的范围已更新，可以开始翻译了")
 
     def pick_region(self) -> None:

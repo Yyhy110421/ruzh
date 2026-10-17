@@ -340,12 +340,26 @@ def resolve_region(cfg) -> tuple[int, int, int, int]:
         return 0, 0, 0, 0
     client_x, client_y, client_width, client_height = client
     region = cfg.region
-    # Clamp so a shrunken window cannot ask for pixels that are not there.
-    left = client_x + region.left
-    top = client_y + region.top
-    width = max(0, min(region.width, client_width - region.left))
-    height = max(0, min(region.height, client_height - region.top))
-    return left, top, width, height
+
+    left = max(0, region.left)
+    top = max(0, region.top)
+    width = region.width
+    height = region.height
+
+    if left >= client_width or top >= client_height:
+        # The stored offset points outside the window: the window was resized after the
+        # selection, or the offset is really a screen coordinate from the other mode.
+        # The old code clamped the *size* to zero instead, which reported "目标窗口不可用"
+        # and stopped translating with the window sitting right there on screen. Follow
+        # the whole content area rather than capture nothing.
+        left, top = 0, 0
+        width, height = client_width, client_height
+    else:
+        # Clamp so a shrunken window cannot ask for pixels that are not there.
+        width = max(0, min(width, client_width - left))
+        height = max(0, min(height, client_height - top))
+
+    return client_x + left, client_y + top, width, height
 
 
 def target_window_label(cfg) -> str:
