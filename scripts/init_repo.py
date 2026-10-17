@@ -27,13 +27,25 @@ for _stream in (sys.stdout, sys.stderr):
     except Exception:  # noqa: BLE001
         pass
 
-#: Author recorded on new commits. The email is the host's private no-reply address
-#: rather than a real mailbox, so publishing does not leak an address that can be
-#: harvested. Change both together with scripts/set_author.py if this ever moves hosts.
-DEFAULT_AUTHOR = "Y_yhy <Y_yhy@users.noreply.github.com>"
+#: Author recorded on new commits. Read from the environment first so a fork does not
+#: commit as the original author, and fall back to the value this repository shipped
+#: with. The email is deliberately the host's no-reply address rather than a real
+#: mailbox, so publishing does not leak an address that can be harvested.
+def _default_author() -> str:
+    for name in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
+        who = os.environ.get(name, "").strip()
+        if who:
+            mail = (os.environ.get("GIT_AUTHOR_EMAIL")
+                    or os.environ.get("GIT_COMMITTER_EMAIL") or "").strip()
+            return f"{who} <{mail}>" if mail else who
+    return "Y_yhy <Y_yhy@users.noreply.github.com>"
+
+
+DEFAULT_AUTHOR = _default_author()
 #: Derived rather than repeated, so the two can never drift apart - an earlier version
 #: hardcoded the email in two places and one of them kept the old value.
-DEFAULT_EMAIL = DEFAULT_AUTHOR[DEFAULT_AUTHOR.index("<") + 1:-1]
+DEFAULT_EMAIL = (DEFAULT_AUTHOR[DEFAULT_AUTHOR.index("<") + 1:-1]
+                 if "<" in DEFAULT_AUTHOR else "")
 
 FIRST_MESSAGE = """初始提交：守译
 

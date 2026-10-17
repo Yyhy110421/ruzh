@@ -74,7 +74,7 @@ def main() -> int:
     print("=" * 66)
     print()
 
-    print("[1/2] 俄文识别模型")
+    print("[1/3] 俄文识别模型")
     if ocr_engine.script_available(args.root, "cyrillic"):
         where = ocr_engine.script_model_dir(args.root, "cyrillic")
         print(f"      已就绪：{where}")
@@ -85,7 +85,19 @@ def main() -> int:
         return 1
     print()
 
-    print("[2/2] 离线翻译模型（约 690 MB，只下一次）")
+    print("[2/3] 中俄词典")
+    dictionary = os.path.join(ROOT, "app", "data", "zh_ru_dict.db")
+    if os.path.isfile(dictionary):
+        print(f"      已就绪：{os.path.getsize(dictionary) / 1048576:.0f} MB")
+    else:
+        # Shipped in the repository precisely so this does not have to happen on a first
+        # run, but say what to do if it is missing rather than letting 查词 fail silently.
+        print("      [缺失] app/data/zh_ru_dict.db")
+        print("      重建：python scripts/build_dictionary.py（会自己下 90 MB 源数据，需要 opencc）")
+        print("      不重建也能用，只是「查词」那一栏没有内容。")
+    print()
+
+    print("[3/3] 离线翻译模型（约 690 MB，只下一次）")
     if args.check:
         missing = [f"{s}-{t}" for s, t in pairs if not models.is_installed(args.root, s, t)]
         if missing:
