@@ -322,6 +322,10 @@ class App(tk.Tk):
         ttk.Button(actions, text="在窗口内框选", command=self.frame_inside_window).pack(
             side="left", padx=8)
         ttk.Button(actions, text="框选屏幕区域", command=self.pick_region).pack(side="left")
+        # Picking the wrong window used to be one-way: the only way back to "nothing
+        # selected" was restarting the program.
+        ttk.Button(actions, text="清除选区", command=self.clear_region).pack(
+            side="left", padx=8)
         ttk.Label(region_card,
                   text="选窗口后，窗口拖到哪译文就跟到哪；框选屏幕区域则固定在原地。",
                   style="CardMuted.TLabel", wraplength=560,
@@ -542,14 +546,18 @@ class App(tk.Tk):
 
     def stop(self) -> None:
         pipeline = self.pipeline
+        # Stopping means the screen is no longer being read, so the last thing it said
+        # should not stay on screen looking live. Clearing here rather than on the
+        # worker thread, because the worker is about to die.
+        self.overlay.hide()
+        self._set_text(self.source_text, "")
+        self._set_text(self.result_text, "")
         if pipeline is None or not pipeline.is_alive():
             self.pipeline = None
-            self.overlay.hide()
             self._refresh_running_buttons()
             self._status("已停止")
             return
         pipeline.stop()
-        self.overlay.hide()
         self._status("正在停止…")
         self._refresh_running_buttons()
         self._await_stop(pipeline, 0)
@@ -662,6 +670,31 @@ class App(tk.Tk):
         self.status_var.set(message)
 
     # ------------------------------------------------------------ screen mode
+    def clear_region(self) -> None:
+        """Forget the current selection, so Start refuses to run again.
+
+        Picking the wrong window used to be one-way: the selection could be replaced but
+        never removed, and the only way back to "nothing selected" was closing the
+        program.
+        """
+        if self.pipeline is not None and self.pipeline.is_alive():
+            messagebox.showinfo("还在跑", "先停止翻译，再清除选区。", parent=self)
+            return
+        self.cfg.target_mode = "region"
+        self.cfg.region = Region()
+        self.cfg.target_window_title = ""
+        self.cfg.target_window_process = ""
+        self.region_var.set(_pretty_region(self.cfg))
+        self.overlay.hide()
+        self._set_text(self.source_text, "")
+        self._set_text(self.result_text, "")
+        self._status("已清除选区")
+        self.log("[选区] 已清除")
+        try:
+            config_mod.save(self.cfg)
+        except Exception:  # noqa: BLE001
+            pass
+
     def pick_window(self) -> None:
         """Choose the window to follow. This is the mode people actually want."""
         from .window_target import list_windows

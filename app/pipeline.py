@@ -63,6 +63,47 @@ def _is_jitter(a: str, b: str, tolerance: float) -> bool:
     return _differing_chars(a, b) <= allowed
 
 
+def _merges(previous: str, following: str) -> bool:
+    """Is this line a wrapped continuation of the one above it?
+
+    The old rule was "merge whenever the previous line does not end a sentence", and it is
+    wrong for exactly the case that matters here: a web page's nav item, heading or table
+    row does not end with punctuation either, so thirty of them collapsed into one run.
+
+    A Russian (or English) sentence starts with a capital, so the strongest signal for a
+    wrap is that the next line starts lowercase - "и ООО Лютик о поставке..." after
+    "...между ООО Ромашка". Nothing else is a continuation.
+
+    Chinese has no case, so nothing merges there: keeping the lines is what a reader of a
+    Chinese page wants anyway.
+    """
+    from .ocr_engine import is_cjk
+
+    previous = previous.strip()
+    following = following.strip()
+    if not previous or not following:
+        return False
+    head = following[0]
+    if is_cjk(head) or not head.islower():
+        return False
+    return not _ends_sentence(previous)
+
+
+def _ends_sentence(line: str) -> bool:
+    from .segment import ends_sentence
+
+    return ends_sentence(line)
+
+
+def _join_units_text(left: str, right: str) -> str:
+    """Glue two wrapped halves, without a space where CJK meets CJK."""
+    from .ocr_engine import is_cjk
+
+    if is_cjk(left[-1]) and is_cjk(right[0]):
+        return left + right
+    return left + " " + right
+
+
 class Pipeline(threading.Thread):
     def __init__(self, cfg: AppConfig, out: queue.Queue) -> None:
         super().__init__(name="pipeline", daemon=True)
@@ -91,6 +132,14 @@ class Pipeline(threading.Thread):
         self._defer_count = 0
         self._blank_count = 0
         self._error_streak = 0
+        #: Translated units, keyed by their source text. A page scrolls, a cursor blinks,
+        #: one row of a table changes - retranslating the other twenty lines because of it
+        #: is most of why this felt slow. Cleared whenever the direction or engine changes.
+        self._unit_cache: dict[str, str] = {}
+        self._unit_key: tuple = ()
+        #: How many units the last frame actually sent to the engine (not how many it
+        #: had), which is the number that explains a slow first frame versus a fast one.
+        self._last_translated = 0
 
     # -- public API --------------------------------------------------------
     def update_config(self, cfg: AppConfig) -> None:
@@ -318,8 +367,7 @@ class Pipeline(threading.Thread):
 
             try:
                 t0 = time.perf_counter()
-                frame = self._capture.grab(Region(left=target[0], top=target[1],
-                                                  width=target[2], height=target[3]))
+                frame = self._grab(cfg, target)
                 capture_ms = (time.perf_counter() - t0) * 1000
 
                 result = ocr.recognize(frame)
@@ -360,26 +408,17 @@ class Pipeline(threading.Thread):
                 self._pending = text
                 self._pending_count = 0
                 glossary = self._ensure_glossary(cfg)
-                src_text = text
-                if glossary is not None:
-                    # Source-side rules normalise what the engine sees; target-side
-                    # rules patch what comes back. Order matters, so they are kept
-                    # separate rather than one flat find/replace.
-                    try:
-                        src_text = glossary.apply_source(text, cfg.source_lang, cfg.target_lang)
-                    except Exception as exc:  # noqa: BLE001
-                        self._error(f"词库（源侧）应用失败：{exc}")
+                # The lines as the recogniser saw them, not the flattened string: the
+                # layout is the only thing that tells the reader which part of the page
+                # a translation came from.
+                line_texts = [ln.text for ln in result.lines if ln.text.strip()]
+                if not line_texts:
+                    line_texts = [text]
                 try:
-                    t0 = time.perf_counter()
-                    translation = translator.translate(src_text)
-                    if glossary is not None and translation:
-                        try:
-                            translation = glossary.apply_target(
-                                translation, cfg.source_lang, cfg.target_lang, source=text)
-                        except Exception as exc:  # noqa: BLE001
-                            self._error(f"词库（译文侧）应用失败：{exc}")
-                    translate_ms = (time.perf_counter() - t0) * 1000
+                    translation, translate_ms, sent = self._translate_units(
+                        line_texts, translator, glossary, cfg)
                     self._last_translation = translation
+                    self._last_translated = sent
                     changed = True
                 except TranslateError as exc:
                     self._error(str(exc))
@@ -404,6 +443,105 @@ class Pipeline(threading.Thread):
             self._sleep_rest(cycle_start, interval)
 
         self._status("后台线程已停止")
+
+
+    def _translate_units(self, line_texts, translator, glossary, cfg):
+        """Translate line by line, keeping the layout, reusing what has not changed.
+
+        Handing the whole recognised text to the engine in one go is what made a web page
+        come back as one unbroken run: the page has thirty short lines - a nav item, a
+        heading, a table row - and after the join there is no way to match any part of the
+        translation back to where it came from.
+
+        So the text is split at its line breaks and a line is merged into the previous one
+        only when it is a continuation of the same sentence. Same rule the text tab uses,
+        so a wrapped subtitle still goes through in one piece.
+
+        Each unit is cached by its source text: a blinking cursor, a clock ticking, one row
+        of a table changing - none of those should cost a retranslation of the other
+        twenty-nine lines, and that is most of why this felt slow.
+
+        Returns (translation, milliseconds, how many units were actually sent).
+        """
+        key = (cfg.source_lang, cfg.target_lang,
+               getattr(cfg.translate, "engine", ""), self._glossary_key)
+        if key != self._unit_key:
+            self._unit_cache.clear()
+            self._unit_key = key
+
+        units: list[str] = []
+        for raw in line_texts:
+            line = (raw or "").strip()
+            if not line:
+                continue
+            if units and _merges(units[-1], line):
+                units[-1] = _join_units_text(units[-1], line)
+            else:
+                units.append(line)
+        if not units:
+            return "", 0.0, 0
+
+        started = time.perf_counter()
+        pieces: list[str] = []
+        sent = 0
+        for unit in units:
+            cached = self._unit_cache.get(unit)
+            if cached is not None:
+                pieces.append(cached)
+                continue
+            src = unit
+            if glossary is not None:
+                # Source-side rules normalise what the engine sees; target-side rules
+                # patch what comes back. Order matters, so they stay separate.
+                src = glossary.apply_source(src, cfg.source_lang, cfg.target_lang)
+            piece = translator.translate(src)
+            if glossary is not None and piece:
+                piece = glossary.apply_target(piece, cfg.source_lang, cfg.target_lang,
+                                              source=unit)
+            self._unit_cache[unit] = piece
+            sent += 1
+            pieces.append(piece)
+
+        # Bounded, so a long session in front of a scrolling feed cannot grow forever.
+        while len(self._unit_cache) > 4000:
+            self._unit_cache.pop(next(iter(self._unit_cache)))
+        return "\n".join(pieces), (time.perf_counter() - started) * 1000, sent
+
+    def _grab(self, cfg: AppConfig, target: tuple[int, int, int, int]):
+        """Capture what the user selected, preferring the window's own drawing.
+
+        In window mode the selection is a rectangle on screen, and a screen grab returns
+        whatever is on top of it - another window, a notification, this program's own
+        subtitle overlay. Measured complaint: "有东西遮挡后会翻译遮挡的部分". Asking the
+        window to render itself (PrintWindow) returns its content even when it is
+        covered.
+
+        PrintWindow is refused for some processes and returns all-black for
+        hardware-accelerated windows, so a screen grab is the fallback. Doing it in this
+        order also means the overlay can never end up translating itself: the overlay is
+        a separate top-level window and simply is not in the picture.
+        """
+        from . import window_target
+
+        if getattr(cfg, "target_mode", "region") == "window":
+            hwnd = window_target.find_window(
+                getattr(cfg, "target_window_title", ""),
+                getattr(cfg, "target_window_process", ""))
+            if hwnd:
+                rect = window_target.frame_rect(hwnd)
+                whole = window_target.capture_frame(hwnd) if rect else None
+                if whole is not None and rect is not None:
+                    off_x = target[0] - rect[0]
+                    off_y = target[1] - rect[1]
+                    height, width = whole.shape[:2]
+                    if 0 <= off_x and 0 <= off_y and off_x + target[2] <= width \
+                            and off_y + target[3] <= height:
+                        cropped = whole[off_y:off_y + target[3], off_x:off_x + target[2]]
+                        if cropped.size:
+                            return cropped.copy()
+
+        return self._capture.grab(Region(left=target[0], top=target[1],
+                                         width=target[2], height=target[3]))
 
     def _sleep_rest(self, cycle_start: float, interval: float) -> None:
         remaining = interval - (time.perf_counter() - cycle_start)
