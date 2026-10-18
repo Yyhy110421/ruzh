@@ -298,6 +298,8 @@ class OcrResult:
     lines: list[OcrLine]
     text: str
     elapsed: float
+    #: How many horizontal strips reused their previous reading (0 for a full read).
+    reused_strips: int = 0
 
     @property
     def empty(self) -> bool:
@@ -348,6 +350,11 @@ class OcrEngine:
         self._load_error: str | None = None
         self.load_seconds = 0.0
         self.last_seconds = 0.0
+        #: Per-strip reuse cache for recognize_cached(): [{"signature", "lines"}].
+        self._strip_cache: list[dict] = []
+        #: Frame size the strip edges were computed for, and the edges themselves.
+        self._strip_size: tuple[int, int] | None = None
+        self._strip_edges: list[int] | None = None
 
     @property
     def uses_script_model(self) -> bool:
@@ -423,6 +430,129 @@ class OcrEngine:
             self.recognize(blank)
         except Exception:  # noqa: BLE001
             pass
+
+    # -- incremental recognition ------------------------------------------
+    #: How many horizontal strips a frame is split into. Three isolates "the bottom of a
+    #: chat changed" without multiplying the detector's own overhead.
+    STRIP_COUNT = 3
+    #: A boundary must sit inside a band of rows this wide with no strong vertical edges,
+    #: otherwise a text line gets cut in half and read as two broken halves.
+    BOUNDARY_BAND = 8
+    #: How far to look for that blank band around the ideal boundary.
+    BOUNDARY_SEARCH = 40
+    #: Fraction of sampled pixels that may differ and still count as the same strip.
+    STRIP_TOLERANCE = 0.004
+
+    def recognize_cached(self, bgr: np.ndarray) -> OcrResult:
+        """Recognise a frame, re-reading only the horizontal strips that changed.
+
+        A full window costs ~5.7 s to recognise here and usually only part of it moves -
+        one new chat message, one row of a table. The frame is split at blank bands so no
+        text line is ever cut, unchanged strips reuse their cached lines, and only the rest
+        goes through the model.
+
+        Falls back to a full recognition whenever the strips cannot be placed safely.
+        A slow correct answer beats a fast wrong one.
+        """
+        if self._engine is None:
+            self.load()
+
+        started = time.perf_counter()
+        height, width = bgr.shape[:2]
+        size = (height, width)
+        # The stored boundaries are only trusted while they still sit on blank bands. A
+        # window whose content changed completely keeps its size, and reusing the old cuts
+        # there would slice a line of text in half - so they are re-validated every frame
+        # and recomputed when they no longer hold.
+        if self._strip_size != size or not self._strip_edges                 or not self._boundaries_hold(bgr, self._strip_edges):
+            self._strip_edges = self._blank_boundaries(bgr)
+            self._strip_size = size
+            self._strip_cache = []
+        if not self._strip_edges:
+            self._strip_cache = []
+            return self.recognize(bgr)
+
+        edges = [0] + self._strip_edges + [height]
+        new_cache: list[dict] = []
+        lines: list[OcrLine] = []
+        reused_count = 0
+        for index in range(len(edges) - 1):
+            top, bottom = edges[index], edges[index + 1]
+            block = bgr[top:bottom]
+            signature = block[::4, ::4, :3].astype(np.int16)
+            reused = None
+            if index < len(self._strip_cache):
+                previous = self._strip_cache[index]
+                known = previous.get("signature")
+                if known is not None and known.shape == signature.shape:
+                    changed = float((np.abs(known - signature) > 12).mean())
+                    if changed < self.STRIP_TOLERANCE:
+                        reused = previous
+            if reused is not None:
+                new_cache.append(reused)
+                lines.extend(reused["lines"])
+                reused_count += 1
+                continue
+            part = self.recognize(block)
+            shifted: list[OcrLine] = []
+            for line in part.lines:
+                box = None
+                if line.box is not None and len(line.box):
+                    box = [[point[0], point[1] + top] for point in line.box]
+                shifted.append(OcrLine(text=line.text, score=line.score, box=box,
+                                       top=line.top + top, left=line.left))
+            new_cache.append({"signature": signature, "lines": shifted})
+            lines.extend(shifted)
+
+        self._strip_cache = new_cache
+        lines.sort(key=lambda ln: (round(ln.top / 8), ln.left))
+        return OcrResult(lines=lines, text=join_lines([ln.text for ln in lines]),
+                         elapsed=time.perf_counter() - started,
+                         reused_strips=reused_count)
+
+    def _boundaries_hold(self, bgr: np.ndarray, boundaries: list[int]) -> bool:
+        """Are the stored cuts still inside blank bands of this frame?"""
+        if not boundaries:
+            return False
+        height = bgr.shape[0]
+        half = self.BOUNDARY_BAND // 2
+        for cut in boundaries:
+            low, high = max(0, cut - half), min(height, cut + half)
+            if high - low < 2:
+                return False
+            rows = bgr[low:high, :, :3]
+            if rows.size and float(np.abs(np.diff(rows.astype(np.int16), axis=0)).max()) > 10.0:
+                return False
+        return True
+
+    def _blank_boundaries(self, bgr: np.ndarray) -> list[int] | None:
+        """Row indices that sit inside a band with no strong horizontal edges."""
+        height = bgr.shape[0]
+        if height < self.STRIP_COUNT * 40:
+            return None
+        gray = bgr[:, :, :3].mean(axis=2)
+        # A row in the middle of a text line has a large gradient to its neighbours;
+        # a row in the gap between two lines has none.
+        edges_per_row = np.abs(np.diff(gray, axis=0)).max(axis=1)
+        calm = edges_per_row < 10.0
+        found: list[int] = []
+        for index in range(1, self.STRIP_COUNT):
+            ideal = int(round(height * index / self.STRIP_COUNT))
+            best = None
+            for delta in range(0, self.BOUNDARY_SEARCH):
+                for candidate in (ideal - delta, ideal + delta):
+                    half = self.BOUNDARY_BAND // 2
+                    low, high = max(0, candidate - half), min(len(calm), candidate + half)
+                    if high - low < 2 or not bool(calm[low:high].all()):
+                        continue
+                    best = candidate
+                    break
+                if best is not None:
+                    break
+            if best is None:
+                return None
+            found.append(best)
+        return found
 
     # -- inference ---------------------------------------------------------
     def _infer(self, bgr: np.ndarray):

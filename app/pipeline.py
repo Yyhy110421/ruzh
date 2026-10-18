@@ -462,7 +462,10 @@ class Pipeline(threading.Thread):
                 capture_ms = (time.perf_counter() - t0) * 1000
 
                 if self._screen_changed(frame):
-                    result = ocr.recognize(frame)
+                    # Strip-level reuse: when only part of the window moved - one new
+                    # chat message, one table row - the untouched strips keep their
+                    # previous reading instead of going back through the model.
+                    result = ocr.recognize_cached(frame)
                     self._last_ocr = result
                     ocr_ms = result.elapsed * 1000
                 else:
