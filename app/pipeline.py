@@ -319,16 +319,25 @@ class Pipeline(threading.Thread):
         return self._glossary
 
     def _ensure_translator(self, cfg: AppConfig):
+        from . import engine as engine_mod
+
         pair = (cfg.source_lang.strip().lower(), cfg.target_lang.strip().lower())
-        wanted = (cfg.translate.engine, pair)
+        root = cfg.resolved_models_root()
+        # Key the cache on the *resolved* engine, not the configured string. An empty
+        # engine means "choose automatically", and resolving it writes the chosen id back
+        # into cfg - so keying on the raw value made the second cycle see "" -> "opus" as
+        # a change and rebuild the whole ONNX route, costing a measured 2-4 s of model
+        # loading in the middle of a session with nothing actually changed.
+        try:
+            resolved = engine_mod.resolve_id(cfg.translate.engine, root)
+        except Exception:  # noqa: BLE001
+            resolved = cfg.translate.engine
+        wanted = (resolved, pair)
         if self._translator is not None and self._pair == wanted:
             # Beam count can change without rebuilding the ONNX sessions.
             self._translator.set_beams(cfg.translate.num_beams)
             return self._translator
 
-        from . import engine as engine_mod
-
-        root = cfg.resolved_models_root()
         ready, detail = engine_mod.check(cfg, root)
         if not ready:
             raise TranslateError(engine_mod.missing_summary(cfg, root) or detail)
