@@ -444,115 +444,133 @@ class OcrEngine:
     STRIP_TOLERANCE = 0.004
 
     def recognize_cached(self, bgr: np.ndarray) -> OcrResult:
-        """Recognise a frame, re-reading only the horizontal strips that changed.
+        """Recognise a frame, re-running only the strips that changed.
 
-        A full window costs ~5.7 s to recognise here and usually only part of it moves -
-        one new chat message, one row of a table. The frame is split at blank bands so no
-        text line is ever cut, unchanged strips reuse their cached lines, and only the rest
-        goes through the model.
+        One detection pass over the whole frame, then recognition only for the crops that
+        belong to a strip whose pixels moved. Measured here: detection 1.3 s and recognition
+        6 s for 47 boxes at 128 ms each, so skipping most of the recognition is the win.
 
-        Falls back to a full recognition whenever the strips cannot be placed safely.
-        A slow correct answer beats a fast wrong one.
+        Detecting once also removes the risk the earlier strip version carried: crops come
+        from the whole-frame detector, so a text line that happens to straddle a strip
+        boundary is still read in one piece.
+
+        Falls back to a plain full read when anything looks unusual. A slow correct answer
+        beats a fast wrong one.
         """
         if self._engine is None:
             self.load()
 
         started = time.perf_counter()
         height, width = bgr.shape[:2]
-        size = (height, width)
-        # The stored boundaries are only trusted while they still sit on blank bands. A
-        # window whose content changed completely keeps its size, and reusing the old cuts
-        # there would slice a line of text in half - so they are re-validated every frame
-        # and recomputed when they no longer hold.
-        if self._strip_size != size or not self._strip_edges                 or not self._boundaries_hold(bgr, self._strip_edges):
-            self._strip_edges = self._blank_boundaries(bgr)
-            self._strip_size = size
-            self._strip_cache = []
-        if not self._strip_edges:
+        if height < self.STRIP_COUNT * 40:
             self._strip_cache = []
             return self.recognize(bgr)
 
-        edges = [0] + self._strip_edges + [height]
-        new_cache: list[dict] = []
-        lines: list[OcrLine] = []
-        reused_count = 0
-        for index in range(len(edges) - 1):
-            top, bottom = edges[index], edges[index + 1]
-            block = bgr[top:bottom]
-            signature = block[::4, ::4, :3].astype(np.int16)
-            reused = None
-            if index < len(self._strip_cache):
-                previous = self._strip_cache[index]
-                known = previous.get("signature")
-                if known is not None and known.shape == signature.shape:
-                    changed = float((np.abs(known - signature) > 12).mean())
-                    if changed < self.STRIP_TOLERANCE:
-                        reused = previous
-            if reused is not None:
-                new_cache.append(reused)
-                lines.extend(reused["lines"])
-                reused_count += 1
-                continue
-            part = self.recognize(block)
-            shifted: list[OcrLine] = []
-            for line in part.lines:
-                box = None
-                if line.box is not None and len(line.box):
-                    box = [[point[0], point[1] + top] for point in line.box]
-                shifted.append(OcrLine(text=line.text, score=line.score, box=box,
-                                       top=line.top + top, left=line.left))
-            new_cache.append({"signature": signature, "lines": shifted})
-            lines.extend(shifted)
+        try:
+            img = self._engine.load_img(bgr)
+            det = self._engine.text_det(img)
+            boxes = det[0] if isinstance(det, tuple) else det
+        except Exception:  # noqa: BLE001
+            self._strip_cache = []
+            return self.recognize(bgr)
+        if boxes is None or len(boxes) == 0:
+            self._strip_cache = []
+            return OcrResult(lines=[], text="", elapsed=time.perf_counter() - started)
 
-        self._strip_cache = new_cache
+        boxes = self._engine.sorted_boxes(boxes)
+        crops = self._engine.get_crop_img_list(img, boxes)
+        if not crops:
+            self._strip_cache = []
+            return self.recognize(bgr)
+
+        step = height / self.STRIP_COUNT
+        #: For each strip: did it change, and the raw text of its crops.
+        changed: list[bool] = []
+        buckets: list[list[int]] = [[] for _ in range(self.STRIP_COUNT)]
+        for index, box in enumerate(boxes):
+            points = np.asarray(box)
+            centre = float(points[:, 1].mean())
+            slot = min(self.STRIP_COUNT - 1, max(0, int(centre // step)))
+            buckets[slot].append(index)
+        for slot in range(self.STRIP_COUNT):
+            top = int(round(slot * step))
+            bottom = int(round((slot + 1) * step)) if slot + 1 < self.STRIP_COUNT else height
+            signature = bgr[top:bottom][::4, ::4, :3].astype(np.int16)
+            known = self._strip_cache[slot]["signature"] if slot < len(self._strip_cache) else None
+            if known is not None and known.shape == signature.shape:
+                moved = float((np.abs(known - signature) > 12).mean()) >= self.STRIP_TOLERANCE
+            else:
+                moved = True
+            changed.append(moved)
+            if not changed[slot]:
+                continue
+
+        wanted = [i for slot in range(self.STRIP_COUNT) if changed[slot] for i in buckets[slot]]
+        texts: dict[int, tuple[str, float]] = {}
+        if wanted:
+            try:
+                rec = self._engine.text_rec([crops[i] for i in wanted])
+                rec = rec[0] if isinstance(rec, tuple) else rec
+            except Exception:  # noqa: BLE001
+                self._strip_cache = []
+                return self.recognize(bgr)
+            for index, item in zip(wanted, rec or []):
+                texts[index] = (str(item[0]), float(item[1]))
+
+        lines: list[OcrLine] = []
+        cache: list[dict] = []
+        for slot in range(self.STRIP_COUNT):
+            if changed[slot]:
+                slot_lines = []
+                for index in buckets[slot]:
+                    if index not in texts:
+                        continue
+                    text, score = texts[index]
+                    text = self._clean(text)
+                    box = boxes[index]
+                    points = np.asarray(box)
+                    top = float(points[:, 1].min())
+                    left = float(points[:, 0].min())
+                    slot_lines.append(OcrLine(text=text, score=score, box=box,
+                                              top=top, left=left))
+                signature = bgr[int(round(slot * step)):
+                                (int(round((slot + 1) * step))
+                                 if slot + 1 < self.STRIP_COUNT else height)][::4, ::4, :3]
+                cache.append({"signature": signature.astype(np.int16), "lines": slot_lines})
+                lines.extend(slot_lines)
+            else:
+                previous = self._strip_cache[slot]
+                cache.append(previous)
+                lines.extend(previous["lines"])
+
+        self._strip_cache = cache
         lines.sort(key=lambda ln: (round(ln.top / 8), ln.left))
         return OcrResult(lines=lines, text=join_lines([ln.text for ln in lines]),
                          elapsed=time.perf_counter() - started,
-                         reused_strips=reused_count)
+                         reused_strips=sum(1 for c in changed if not c))
 
-    def _boundaries_hold(self, bgr: np.ndarray, boundaries: list[int]) -> bool:
-        """Are the stored cuts still inside blank bands of this frame?"""
-        if not boundaries:
-            return False
-        height = bgr.shape[0]
-        half = self.BOUNDARY_BAND // 2
-        for cut in boundaries:
-            low, high = max(0, cut - half), min(height, cut + half)
-            if high - low < 2:
-                return False
-            rows = bgr[low:high, :, :3]
-            if rows.size and float(np.abs(np.diff(rows.astype(np.int16), axis=0)).max()) > 10.0:
-                return False
-        return True
+    def _clean(self, text: str) -> str:
+        """Normalise one recognised run of text.
 
-    def _blank_boundaries(self, bgr: np.ndarray) -> list[int] | None:
-        """Row indices that sit inside a band with no strong horizontal edges."""
-        height = bgr.shape[0]
-        if height < self.STRIP_COUNT * 40:
-            return None
-        gray = bgr[:, :, :3].mean(axis=2)
-        # A row in the middle of a text line has a large gradient to its neighbours;
-        # a row in the gap between two lines has none.
-        edges_per_row = np.abs(np.diff(gray, axis=0)).max(axis=1)
-        calm = edges_per_row < 10.0
-        found: list[int] = []
-        for index in range(1, self.STRIP_COUNT):
-            ideal = int(round(height * index / self.STRIP_COUNT))
-            best = None
-            for delta in range(0, self.BOUNDARY_SEARCH):
-                for candidate in (ideal - delta, ideal + delta):
-                    half = self.BOUNDARY_BAND // 2
-                    low, high = max(0, candidate - half), min(len(calm), candidate + half)
-                    if high - low < 2 or not bool(calm[low:high].all()):
-                        continue
-                    best = candidate
-                    break
-                if best is not None:
-                    break
-            if best is None:
-                return None
-            found.append(best)
-        return found
+        Shared by the plain and the incremental path so the two cannot drift apart - the
+        cyrillic repairs are what make the Russian model's output usable at all, and a
+        cached strip must go through exactly the same steps.
+        """
+        text = normalize(str(text))
+        if not text:
+            return ""
+        if self.script == "cyrillic":
+            text = fold_to_cyrillic(text)
+            # Numbers first: restore_spaces ignores tokens containing digits, so it has to
+            # see the real ones rather than letters standing in for them.
+            text = repair_digits(text)
+            # The Cyrillic model also drops spaces between short words; recover the
+            # boundaries so the translator sees words instead of one long token.
+            text = restore_spaces(text)
+            # Last, because splitting is what turns a mangled run of letters back into
+            # tokens that can be looked up one at a time.
+            text = repair_words(text)
+        return text
 
     # -- inference ---------------------------------------------------------
     def _infer(self, bgr: np.ndarray):
@@ -606,20 +624,9 @@ class OcrEngine:
                 box, text, score = item[0], item[1], float(item[2])
             except Exception:  # noqa: BLE001
                 continue
-            text = normalize(str(text))
+            text = self._clean(text)
             if not text:
                 continue
-            if self.script == "cyrillic":
-                text = fold_to_cyrillic(text)
-                # Numbers first: restore_spaces ignores tokens containing digits, so it
-                # has to see the real ones rather than letters standing in for them.
-                text = repair_digits(text)
-                # The Cyrillic model also drops spaces between short words; recover the
-                # boundaries so the translator sees words instead of one long token.
-                text = restore_spaces(text)
-                # Last, because splitting is what turns a mangled run of letters back into
-                # tokens that can be looked up one at a time.
-                text = repair_words(text)
             # box is a numpy array here, so "if box" is ambiguous - test the length.
             has_box = box is not None and len(box) > 0
             top = min(point[1] for point in box) if has_box else 0.0

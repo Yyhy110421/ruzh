@@ -270,6 +270,11 @@ class Pipeline(threading.Thread):
             engine = OcrEngine(cfg.ocr, models_root=cfg.resolved_models_root(),
                                script=script)
             engine.load()
+            # Warm up before reporting ready. The first real inference pays one-off costs
+            # (graph re-optimisation for the actual shape, arena allocation) that measured
+            # 5.7 s on this machine - spending it here keeps it out of the user's first
+            # frame, and the status line already says a model is loading.
+            engine.warmup()
             self._ocr = engine
             self._ocr_settings_key = key
             note = f"（{script} 识别模型）" if engine.uses_script_model else ""

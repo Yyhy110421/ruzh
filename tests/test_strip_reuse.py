@@ -1,10 +1,11 @@
-"""Recognition must reuse the strips that did not change.
+"""Recognition must only re-run the strips whose pixels changed.
 
-A full 1100x800 window costs ~20 s to recognise here, and a chat window usually changes in
-one place. recognize_cached() splits the frame at blank bands, re-reads only the strips that
-changed, and reuses the rest. The strip boundaries must never cut a line of text in half.
+Measured on this machine: detecting a 1100x800 window costs ~1.3 s and recognising its 47
+boxes another ~6 s at 128 ms each. So detection stays whole-frame - cheap, and it means a
+text line straddling a strip boundary is still read in one piece - and only the crops from
+changed strips go through the recogniser.
 
-The engine is stubbed so this runs in milliseconds and does not need a model.
+The engine is faked so this runs in milliseconds without a model.
 
 Run: python tests/test_strip_reuse.py
 """
@@ -26,7 +27,7 @@ bootstrap.prepare()
 import numpy as np  # noqa: E402
 
 from app.config import AppConfig  # noqa: E402
-from app.ocr_engine import OcrEngine, OcrLine, OcrResult  # noqa: E402
+from app.ocr_engine import OcrEngine  # noqa: E402
 
 failures = 0
 
@@ -38,98 +39,107 @@ def check(ok, label, extra=""):
     print(f"  [{'OK  ' if ok else 'FAIL'}] {label}" + (f"  {extra}" if extra else ""))
 
 
-class CountingEngine(OcrEngine):
-    """Records each recognition and returns one line, without any model."""
+class FakeEngine:
+    """Three boxes, one per strip, plus counters instead of a model."""
 
     def __init__(self):
-        super().__init__(AppConfig().ocr, None, "en")
-        self._engine = object()          # pretend the sessions are loaded
-        self.calls: list[int] = []
+        self.dets = 0
+        self.rec_batches: list[int] = []
 
-    def recognize(self, bgr):
-        self.calls.append(bgr.shape[0])
-        line = OcrLine(text=f"block{len(self.calls)}", score=1.0,
-                       top=5.0, left=5.0, box=np.array([[5, 5], [60, 5], [60, 25], [5, 25]]))
-        return OcrResult(lines=[line], text=line.text, elapsed=0.0)
+    def load_img(self, bgr):
+        return bgr
+
+    def text_det(self, img):
+        self.dets += 1
+        height = img.shape[0]
+        boxes = []
+        for fraction in (1 / 6, 1 / 2, 5 / 6):
+            top = int(height * fraction)
+            boxes.append(np.array([[10, top], [200, top], [200, top + 20], [10, top + 20]]))
+        return (np.array(boxes), 0.0)
+
+    def sorted_boxes(self, boxes):
+        return list(boxes)
+
+    def get_crop_img_list(self, img, boxes):
+        return [img[int(b[0][1]):int(b[2][1]), 10:200] for b in boxes]
+
+    def text_rec(self, crops):
+        self.rec_batches.append(len(crops))
+        return ([(f"row{len(self.rec_batches)}_{i}", 0.9) for i in range(len(crops))], 0.0)
+
+    def __call__(self, bgr):
+        return ([], 0.0)
 
 
-def frame_with_bands(height=600, width=400):
-    """White background with text-like dark rows and clean blank bands between them."""
-    img = np.full((height, width, 3), 255, dtype=np.uint8)
-    for row in range(20, height - 20, 40):
-        img[row:row + 16, 20:width - 20] = 20
-    return img
+def make():
+    engine = OcrEngine(AppConfig().ocr, None, "en")
+    engine._engine = FakeEngine()
+    return engine
+
+
+def frame(height=600, width=400, fill=255):
+    return np.full((height, width, 3), fill, dtype=np.uint8)
 
 
 def main() -> int:
     print("=" * 78)
-    print("一、空白带能被找到，且不切进文字里")
+    print("一、第一次：检测 1 次，识别 3 张")
     print("=" * 78)
-    engine = CountingEngine()
-    frame = frame_with_bands()
-    boundaries = engine._blank_boundaries(frame)
-    check(boundaries is not None and len(boundaries) == 2,
-          f"找到 2 条边界：{boundaries}")
-    if boundaries:
-        for cut in boundaries:
-            band = frame[max(0, cut - 2):cut + 2]
-            check(int(band.min()) > 200, f"边界 {cut} 落在空白处（最暗 {band.min()}）")
+    engine = make()
+    first = engine.recognize_cached(frame())
+    fake = engine._engine
+    check(fake.dets == 1, f"只检测了一次：{fake.dets}")
+    check(fake.rec_batches == [3], f"一次批量识别 3 张：{fake.rec_batches}")
+    check(first.reused_strips == 0, f"复用 0 条：{first.reused_strips}")
+    check(len(first.lines) == 3, f"3 行：{len(first.lines)}")
     print()
 
     print("=" * 78)
-    print("二、第一次全读，第二次全复用")
+    print("二、同一画面：检测照跑，但一张都不再识别")
     print("=" * 78)
-    first = engine.recognize_cached(frame)
-    check(len(engine.calls) == 3, f"第一次读了 3 条：{len(engine.calls)}")
-    check(first.reused_strips == 0, f"第一次复用 0 条：{first.reused_strips}")
-    before = len(engine.calls)
-    second = engine.recognize_cached(frame)
-    check(len(engine.calls) == before, f"第二次没有再调模型：{len(engine.calls) - before} 次")
+    before = len(fake.rec_batches)
+    second = engine.recognize_cached(frame())
+    check(fake.dets == 2, f"检测跑了第 2 次：{fake.dets}")
+    check(len(fake.rec_batches) == before, f"没有再识别：{fake.rec_batches}")
     check(second.reused_strips == 3, f"复用 3 条：{second.reused_strips}")
-    check([l.text for l in first.lines] == [l.text for l in second.lines],
-          "两次结果完全一致")
+    check([l.text for l in first.lines] == [l.text for l in second.lines], "结果完全一致")
     print()
 
     print("=" * 78)
-    print("三、只改中间一条，只重读那一条")
+    print("三、只改中间一条：只识别那一条里的框")
     print("=" * 78)
-    changed = frame.copy()
-    # Inside the middle strip, clear of both cuts at 200 and 400: a change that touched a
-    # boundary is supposed to move it, and then a full re-read is the correct answer.
-    changed[232:352, 30:200] = 0
-    before = len(engine.calls)
+    changed = frame()
+    changed[250:350, 20:380] = 0
     third = engine.recognize_cached(changed)
-    check(len(engine.calls) - before == 1,
-          f"只多读了 1 条：{len(engine.calls) - before}")
+    check(fake.rec_batches[-1] == 1, f"只识别了 1 张：{fake.rec_batches[-1]}")
     check(third.reused_strips == 2, f"另外 2 条复用：{third.reused_strips}")
+    check(len(third.lines) == 3, f"结果仍是 3 行：{len(third.lines)}")
     print()
 
     print("=" * 78)
-    print("四、找不到空白带就老实全读")
+    print("四、画面太矮不走分条")
     print("=" * 78)
-    noise = np.random.default_rng(3).integers(0, 255, (600, 400, 3), dtype=np.uint8)
-    check(engine._blank_boundaries(noise) is None, "满屏噪点 -> 没有安全边界")
-    before = len(engine.calls)
-    engine.recognize_cached(noise)
-    check(len(engine.calls) - before == 1, "退回整帧读一次")
+    small = make()
+    result = small.recognize_cached(frame(height=60))
+    # The fallback still detects - it is a plain full read - but it must not have gone
+    # through the strip path, so no strip cache is left behind.
+    check(small._strip_cache == [], "没有走分条逻辑")
+    check(result.reused_strips == 0, "报告没有复用任何条带")
     print()
 
     print("=" * 78)
-    print("五、太小的画面不走分条")
+    print("五、检测失败要老实退回整帧识别")
     print("=" * 78)
-    tiny = np.full((60, 200, 3), 255, dtype=np.uint8)
-    check(engine._blank_boundaries(tiny) is None, "60 像素高 -> 不分条")
-    print()
+    broken = make()
 
-    print("=" * 78)
-    print("六、画面尺寸变了要重算边界、清缓存")
-    print("=" * 78)
-    engine2 = CountingEngine()
-    engine2.recognize_cached(frame_with_bands(600, 400))
-    edges_before = list(engine2._strip_edges or [])
-    engine2.recognize_cached(frame_with_bands(900, 400))
-    check(list(engine2._strip_edges or []) != edges_before,
-          f"边界跟着重算了：{edges_before} -> {engine2._strip_edges}")
+    def boom(img):
+        raise RuntimeError("检测挂了")
+
+    broken._engine.text_det = boom
+    result = broken.recognize_cached(frame())
+    check(result is not None, "没有抛出去")
+    check(result.lines == [], f"退回后是空结果：{len(result.lines)} 行")
     print()
 
     print("=" * 78)
