@@ -63,6 +63,57 @@ def _is_jitter(a: str, b: str, tolerance: float) -> bool:
     return _differing_chars(a, b) <= allowed
 
 
+def _ocr_rows(lines) -> list[str]:
+    """Group OCR boxes on the same horizontal row back into one line.
+
+    A menu bar - File  View  Repository  Branch  Help - comes back as five separate boxes
+    at the same y. Treating those as five units is what made a horizontal menu translate
+    into a vertical list of single words.
+
+    Rows are matched by vertical proximity rather than exact y, because OCR gives each box
+    a slightly different top depending on the glyphs; 8 px is the tolerance floor.
+    """
+    items = []
+    for line in lines or []:
+        text = (getattr(line, "text", "") or "").strip()
+        if not text:
+            continue
+        # box is a numpy array on the real path, so "or []" is ambiguous - test length.
+        box = getattr(line, "box", None)
+        has_box = box is not None and len(box) > 0
+        if has_box:
+            top = min(point[1] for point in box)
+            height = max(point[1] for point in box) - top
+            left = min(point[0] for point in box)
+        else:
+            top = float(getattr(line, "top", 0.0) or 0.0)
+            left = float(getattr(line, "left", 0.0) or 0.0)
+            height = 0.0
+        items.append((top, left, max(height, 1.0), text))
+    if not items:
+        return []
+    items.sort(key=lambda item: (item[0], item[1]))
+
+    rows: list[dict] = []
+    for top, left, height, text in items:
+        for row in rows:
+            tolerance = max(8.0, 0.5 * min(height, row["height"]))
+            if abs(top - row["top"]) <= tolerance:
+                row["cells"].append((left, text))
+                break
+        else:
+            rows.append({"top": top, "height": height, "cells": [(left, text)]})
+
+    joined = []
+    for row in rows:
+        row["cells"].sort(key=lambda cell: cell[0])
+        row_text = row["cells"][0][1]
+        for _, cell in row["cells"][1:]:
+            row_text = _join_units_text(row_text, cell)
+        joined.append(row_text)
+    return joined
+
+
 def _merges(previous: str, following: str) -> bool:
     """Is this line a wrapped continuation of the one above it?
 
@@ -455,7 +506,7 @@ class Pipeline(threading.Thread):
                 # The lines as the recogniser saw them, not the flattened string: the
                 # layout is the only thing that tells the reader which part of the page
                 # a translation came from.
-                line_texts = [ln.text for ln in result.lines if ln.text.strip()]
+                line_texts = _ocr_rows(result.lines)
                 if not line_texts:
                     line_texts = [text]
                 try:

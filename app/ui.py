@@ -1216,7 +1216,14 @@ class App(tk.Tk):
             if target:
                 region = Region(left=target[0], top=target[1],
                                 width=target[2], height=target[3])
-                self.cfg.region = region
+                # Only the overlay gets the absolute screen rectangle. Writing it back
+                # into cfg.region was the bug that broke window following outright: in
+                # window mode cfg.region is the *offset inside the window*, so storing
+                # screen coordinates there made the next frame clamp the capture to
+                # (client_width - offset) - 1202 - 664 = 538, then smaller - until it hit
+                # zero and the UI said "目标窗口不可用" with the window plainly on screen.
+                if getattr(self.cfg, "target_mode", "region") != "window":
+                    self.cfg.region = region
                 self.region_var.set(_pretty_region(self.cfg))
                 if self.cfg.overlay.enabled:
                     self.overlay.apply_settings(self.cfg.overlay, region)
