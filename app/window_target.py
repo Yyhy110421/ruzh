@@ -202,12 +202,26 @@ def find_window(title_contains: str, process_name: str = "") -> int:
     want_process = (process_name or "").strip().lower()
     if not want_title and not want_process:
         return 0
-    for info in list_windows():
-        if want_process and info.process_name.lower() != want_process:
-            continue
-        if want_title and want_title not in info.title.lower():
-            continue
-        return info.handle
+    windows = list_windows()
+
+    def match(use_process: bool) -> int:
+        for info in windows:
+            if use_process and want_process and info.process_name.lower() != want_process:
+                continue
+            if want_title and want_title not in info.title.lower():
+                continue
+            return info.handle
+        return 0
+
+    found = match(use_process=True)
+    if found:
+        return found
+    if want_title and want_process:
+        # The stored process name can go stale - an app updates and the .exe is renamed, or
+        # the same program is launched by a different host (python.exe vs pythonw.exe). The
+        # title is what the user actually picked, so fall back to it rather than report the
+        # window as gone while it is plainly on screen.
+        return match(use_process=False)
     return 0
 
 

@@ -63,6 +63,30 @@ def _is_jitter(a: str, b: str, tolerance: float) -> bool:
     return _differing_chars(a, b) <= allowed
 
 
+#: A unit longer than this is split at sentence ends before translation. Measured: the
+#: two-hop ru->en->zh route truncates on long input - one paragraph came back as
+#: "合同总额为600,0卢布，增值税会计。" whole, but as two correct sentences when split.
+UNIT_MAX_CHARS = 90
+
+
+def _split_long_unit(unit: str) -> list[str]:
+    """Cut an over-long unit at sentence (or clause) boundaries.
+
+    Only splits when there is something to split on; a single long run with no punctuation
+    is left alone rather than cut mid-word.
+    """
+    if len(unit) <= UNIT_MAX_CHARS:
+        return [unit]
+    for pattern in (r"(?<=[.!?。！？])\s+", r"(?<=[;；])\s+", r"(?<=[,，])\s+"):
+        parts = [p.strip() for p in re.split(pattern, unit) if p.strip()]
+        if len(parts) > 1:
+            return parts
+    return [unit]
+
+
+import re
+
+
 def _ocr_rows(lines) -> list[str]:
     """Group OCR boxes on the same horizontal row back into one line.
 
@@ -621,6 +645,10 @@ class Pipeline(threading.Thread):
                 units[-1] = _join_units_text(units[-1], line)
             else:
                 units.append(line)
+        # A paragraph read as one box arrives as a single long unit and the offline route
+        # degrades on it, so cut it at sentence ends before translating.
+        if units:
+            units = [piece for unit in units for piece in _split_long_unit(unit)]
         if not units:
             return "", 0.0, 0, ""
 
