@@ -612,6 +612,11 @@ class Pipeline(threading.Thread):
         changed = float((delta > 12).mean())
         return changed > 0.004
 
+    def _log_numbers(self, unrestored, unit: str) -> None:
+        """Record numbers the engine dropped, without spamming the status bar."""
+        text = "、".join(str(item) for item in unrestored[:5])
+        self._error(f"数字未还原：{text}（原文: {unit[:40]}）")
+
     def _translate_units(self, line_texts, translator, glossary, cfg):
         """Translate line by line, keeping the layout, reusing what has not changed.
 
@@ -672,7 +677,23 @@ class Pipeline(threading.Thread):
                 # Source-side rules normalise what the engine sees; target-side rules
                 # patch what comes back. Order matters, so they stay separate.
                 src = glossary.apply_source(src, cfg.source_lang, cfg.target_lang)
-            piece = translator.translate(src)
+            # Numbers are masked before the engine sees them. Without this the screen path
+            # mangled them - "600 000" came back as "600,0" - because only the document and
+            # text-tab paths were masking. That is the one claim the product makes about
+            # accuracy, so it belongs on every path.
+            from . import numbers as numbers_mod
+            try:
+                masked, tokens = numbers_mod.mask(src)
+            except Exception:  # noqa: BLE001
+                masked, tokens = src, {}
+            piece = translator.translate(masked)
+            if tokens:
+                try:
+                    piece, unrestored = numbers_mod.unmask(piece, tokens)
+                except Exception:  # noqa: BLE001
+                    unrestored = list(tokens.values())
+                if unrestored:
+                    self._log_numbers(unrestored, unit)
             if glossary is not None and piece:
                 piece = glossary.apply_target(piece, cfg.source_lang, cfg.target_lang,
                                               source=unit)
