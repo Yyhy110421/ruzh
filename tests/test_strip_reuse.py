@@ -90,7 +90,9 @@ def main() -> int:
     first = engine.recognize_cached(frame())
     fake = engine._engine
     check(fake.dets == 1, f"只检测了一次：{fake.dets}")
-    check(fake.rec_batches == [3], f"一次批量识别 3 张：{fake.rec_batches}")
+    # One crop per call on purpose: measured on this machine, batching costs 209 ms per
+    # crop at six per call against 41 ms one at a time, so the loop is the fast path.
+    check(fake.rec_batches == [1, 1, 1], f"逐张识别了 3 次：{fake.rec_batches}")
     check(first.reused_strips == 0, f"复用 0 条：{first.reused_strips}")
     check(len(first.lines) == 3, f"3 行：{len(first.lines)}")
     print()
