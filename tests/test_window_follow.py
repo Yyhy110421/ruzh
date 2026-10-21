@@ -35,7 +35,7 @@ TITLE = "模拟聊天窗口-跟随测试"
 LINE = "Цена указана за одну тонну без доставки."
 W, H = 720, 260
 POSITIONS = [(240, 300), (900, 220), (300, 620)]
-SECONDS = 80
+SECONDS = 150
 
 
 def main() -> int:
@@ -82,6 +82,8 @@ def main() -> int:
 
     started = time.time()
     pipeline.start()
+    #: When the translation model reported ready; the drag schedule is anchored to it.
+    ready_at: float | None = None
     moves_done = 0
     target_changes: list[tuple] = []
     texts: list[str] = []
@@ -92,13 +94,15 @@ def main() -> int:
         while time.time() - started < SECONDS:
             elapsed = time.time() - started
 
-            # Drag the window three times, several seconds apart. The spacing has to
-            # exceed one full cycle (recognition + translation), because the capture
-            # rectangle is re-resolved at the top of a cycle: a move that lands mid-cycle
-            # is picked up by the next one and the assertion below would count a move that
-            # had no chance to be seen yet. Measured here at ~7 s recognition + ~4 s
-            # translation for a full window, so 22 s apart leaves room.
-            if moves_done < len(POSITIONS) and elapsed > 6 + moves_done * 22:
+            # Drag the window three times, several seconds apart. Two things have to hold:
+            # the models must be loaded (a move during loading lands mid-cycle and the
+            # assertion below counts a move that had no chance to be seen), and the spacing
+            # must exceed one full cycle because the capture rectangle is re-resolved at the
+            # top of a cycle. Anchoring the schedule on the "model ready" status instead of
+            # the wall clock is what stops this test from failing under full-suite load,
+            # where loading takes several seconds longer than it does alone.
+            if ready_at is not None and moves_done < len(POSITIONS) \
+                    and elapsed > ready_at + 2 + moves_done * 22:
                 x, y = POSITIONS[moves_done]
                 root.geometry(f"+{x}+{y}")
                 root.update()
@@ -122,6 +126,8 @@ def main() -> int:
                                               width=region[2], height=region[3]))
             elif event.kind == STATUS:
                 print(f"[{elapsed:5.1f}s] {event.message}")
+                if ready_at is None and "翻译模型就绪" in event.message:
+                    ready_at = elapsed
             elif event.kind == RESULT and event.source:
                 if event.changed:
                     texts.append(event.source)
