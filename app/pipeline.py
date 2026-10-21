@@ -69,6 +69,23 @@ def _is_jitter(a: str, b: str, tolerance: float) -> bool:
 UNIT_MAX_CHARS = 90
 
 
+import re
+
+#: Entities the engines emit instead of the character they mean. OPUS turned an apostrophe
+#: into "& aspos;" on screen, which is not a typo the user can be expected to decode.
+_ENTITY = re.compile(r"&\s?(apos|aspos|quot|amp|lt|gt|nbsp|#39|#34);", re.I)
+_ENTITY_CHAR = {"apos": "'", "aspos": "'", "quot": '"', "amp": "&", "lt": "<", "gt": ">",
+                "nbsp": " ", "#39": "'", "#34": '"'}
+
+
+def _strip_entities(text: str) -> str:
+    """Decode the handful of entities a model emits, and drop the space around them."""
+    if "&" not in text:
+        return text
+    text = _ENTITY.sub(lambda m: _ENTITY_CHAR.get(m.group(1).lower(), ""), text)
+    return re.sub(r"\s{2,}", " ", text).strip()
+
+
 def _split_long_unit(unit: str) -> list[str]:
     """Cut an over-long unit at sentence (or clause) boundaries.
 
@@ -83,8 +100,6 @@ def _split_long_unit(unit: str) -> list[str]:
             return parts
     return [unit]
 
-
-import re
 
 
 def _ocr_rows(lines) -> list[str]:
@@ -686,7 +701,7 @@ class Pipeline(threading.Thread):
                 masked, tokens = numbers_mod.mask(src)
             except Exception:  # noqa: BLE001
                 masked, tokens = src, {}
-            piece = translator.translate(masked)
+            piece = _strip_entities(translator.translate(masked))
             if tokens:
                 try:
                     piece, unrestored = numbers_mod.unmask(piece, tokens)

@@ -1,2829 +1,2873 @@
 {
-  "version": 1,
-  "_note": "中俄外贸内置词库，由 scripts/build_trade_glossary.py 实测生成：大多数规则是拿多个引擎（离线 + 免费联网）逐条翻出来、跟期望对比得到的，把各引擎的错法合并进同一条规则，所以换引擎后仍然有效；少数几条来自供应商文件里实际见到的误译（note 里写明了）。每条规则都带 when 条件，只在原文出现该术语时才动手。可以在程序里继续添加，你自己的规则会覆盖这里的。",
-  "rules": [
-    {
-      "src": "单价",
-      "dst": "价格",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "цена",
-      "note": "mymemory 译作「单价」"
-    },
-    {
-      "src": "Цена",
-      "dst": "цена",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "价格",
-      "note": "opus 译作「Цена」"
-    },
-    {
-      "src": "价值|总额",
-      "dst": "总价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "стоимость",
-      "note": "opus 译作「价值」；mymemory 译作「总额」"
-    },
-    {
-      "src": "Общая цена",
-      "dst": "стоимость",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "总价",
-      "note": "opus 译作「Общая цена」"
-    },
-    {
-      "src": "每单位价格|单位单位价格",
-      "dst": "单价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "цена за единицу",
-      "note": "opus 译作「每单位价格」；opus 译作「单位单位价格」"
-    },
-    {
-      "src": "Удельная\\ цена|Цена\\ за\\ единицу",
-      "dst": "цена за единицу",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "单价",
-      "note": "opus 译作「Удельная цена」；mymemory 译作「Цена за единицу」"
-    },
-    {
-      "src": "价格清单|产品报价表",
-      "dst": "报价单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "прайс-лист",
-      "note": "opus 译作「价格清单」；mymemory 译作「产品报价表」"
-    },
-    {
-      "src": "Кот|Прайслист",
-      "dst": "прайс-лист",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "报价单",
-      "note": "opus 译作「Кот」；mymemory 译作「Прайслист」"
-    },
-    {
-      "src": "批发价格|全价",
-      "dst": "批发价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "оптовая цена",
-      "note": "opus 译作「批发价格」；opus 译作「全价」"
-    },
-    {
-      "src": "Оптовая цена",
-      "dst": "оптовая цена",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "批发价",
-      "note": "opus 译作「Оптовая цена」"
-    },
-    {
-      "src": "零售价格",
-      "dst": "零售价",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "розничная цена",
-      "note": "opus 译作「零售价格」"
-    },
-    {
-      "src": "Розничные цены",
-      "dst": "розничная цена",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "零售价",
-      "note": "opus 译作「Розничные цены」"
-    },
-    {
-      "src": "贴贴折扣",
-      "dst": "折扣",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "скидка",
-      "note": "opus 译作「贴贴折扣」"
-    },
-    {
-      "src": "Скидка",
-      "dst": "скидка",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "折扣",
-      "note": "opus 译作「Скидка」"
-    },
-    {
-      "src": "无增值税价格|不含税",
-      "dst": "不含税价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "цена без НДС",
-      "note": "opus 译作「无增值税价格」；mymemory 译作「不含税」"
-    },
-    {
-      "src": "Без\\ налоговой\\ цены|Без\\ учета\\ налога",
-      "dst": "цена без НДС",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "不含税价",
-      "note": "opus 译作「Без налоговой цены」；mymemory 译作「Без учета налога」"
-    },
-    {
-      "src": "增值税价格|价格包括增值税",
-      "dst": "含税价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "цена с НДС",
-      "note": "opus 译作「增值税价格」；mymemory 译作「价格包括增值税」"
-    },
-    {
-      "src": "Налоговая\\ цена|Цена\\ с\\ учетом\\ налогов",
-      "dst": "цена с НДС",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "含税价",
-      "note": "opus 译作「Налоговая цена」；mymemory 译作「Цена с учетом налогов」"
-    },
-    {
-      "src": "共计|总价",
-      "dst": "总金额",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "общая сумма",
-      "note": "opus 译作「共计」；mymemory 译作「总价」"
-    },
-    {
-      "src": "Общая сумма",
-      "dst": "общая сумма",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "总金额",
-      "note": "opus 译作「Общая сумма」"
-    },
-    {
-      "src": "最低批次|最小批次",
-      "dst": "起订量",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "минимальная партия",
-      "note": "opus 译作「最低批次」；mymemory 译作「最小批次」"
-    },
-    {
-      "src": "Запуск\\ установлен|Минимальный\\ объем\\ заказа",
-      "dst": "минимальная партия",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "起订量",
-      "note": "opus 译作「Запуск установлен」；mymemory 译作「Минимальный объем заказа」"
-    },
-    {
-      "src": "预付|预付款项：",
-      "dst": "预付款",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "предоплата",
-      "note": "opus 译作「预付」；mymemory 译作「预付款项：」"
-    },
-    {
-      "src": "Авансы|Денежный\\ аванс",
-      "dst": "предоплата",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "预付款",
-      "note": "opus 译作「Авансы」；mymemory 译作「Денежный аванс」"
-    },
-    {
-      "src": "全额支付|全额付款",
-      "dst": "全款",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "полная оплата",
-      "note": "opus 译作「全额支付」；opus 译作「全额付款」"
-    },
-    {
-      "src": "Всего|Полный",
-      "dst": "полная оплата",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "全款",
-      "note": "opus 译作「Всего」；mymemory 译作「Полный」"
-    },
-    {
-      "src": "账户付款|付钱。",
-      "dst": "按发票付款",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "оплата по счёту",
-      "note": "opus 译作「账户付款」；mymemory 译作「付钱。」"
-    },
-    {
-      "src": "Оплата\\ по\\ счету\\-фактуре|Оплатить\\ по\\ счету",
-      "dst": "оплата по счёту",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "按发票付款",
-      "note": "opus 译作「Оплата по счету-фактуре」；mymemory 译作「Оплатить по счету」"
-    },
-    {
-      "src": "银行电汇",
-      "dst": "银行转账",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "банковский перевод",
-      "note": "mymemory 译作「银行电汇」"
-    },
-    {
-      "src": "Банковские\\ переводы|перевод",
-      "dst": "банковский перевод",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "银行转账",
-      "note": "opus 译作「Банковские переводы」；mymemory 译作「перевод」"
-    },
-    {
-      "src": "认证资格认证",
-      "dst": "信用证",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "аккредитив",
-      "note": "opus 译作「认证资格认证」"
-    },
-    {
-      "src": "аккредитивы|Аккредетив",
-      "dst": "аккредитив",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "信用证",
-      "note": "opus 译作「аккредитивы」；mymemory 译作「Аккредетив」"
-    },
-    {
-      "src": "延迟|支付的延迟，天",
-      "dst": "账期",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "отсрочка платежа",
-      "note": "opus 译作「延迟」；mymemory 译作「支付的延迟，天」"
-    },
-    {
-      "src": "Период|Период\\ счета",
-      "dst": "отсрочка платежа",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "账期",
-      "note": "opus 译作「Период」；mymemory 译作「Период счета」"
-    },
-    {
-      "src": "支付条件|付款条款",
-      "dst": "付款条件",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "условия оплаты",
-      "note": "opus 译作「支付条件」；mymemory 译作「付款条款」"
-    },
-    {
-      "src": "Условия\\ платежа|Условия\\ оплаты",
-      "dst": "условия оплаты",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "付款条件",
-      "note": "opus 译作「Условия платежа」；mymemory 译作「Условия оплаты」"
-    },
-    {
-      "src": "薪资账户薪金账户|账单",
-      "dst": "付款通知",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "счёт на оплату",
-      "note": "opus 译作「薪资账户薪金账户」；mymemory 译作「账单」"
-    },
-    {
-      "src": "Уведомления\\ об\\ уплате|Рекомендации\\ по\\ оплате",
-      "dst": "счёт на оплату",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "付款通知",
-      "note": "opus 译作「Уведомления об уплате」；mymemory 译作「Рекомендации по оплате」"
-    },
-    {
-      "src": "债务|债务宽减",
-      "dst": "欠款",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "задолженность",
-      "note": "opus 译作「债务」；mymemory 译作「债务宽减」"
-    },
-    {
-      "src": "Невыплаченные\\ взносы|Задолженность",
-      "dst": "задолженность",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "欠款",
-      "note": "opus 译作「Невыплаченные взносы」；mymemory 译作「Задолженность」"
-    },
-    {
-      "src": "交付时间|执行日期|装货货期：",
-      "dst": "交期",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "срок поставки",
-      "note": "opus 译作「交付时间」；opus 译作「执行日期」；mymemory 译作「装货货期：」"
-    },
-    {
-      "src": "Период\\ представления|Дата\\ поставки",
-      "dst": "срок поставки",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "交期",
-      "note": "opus 译作「Период представления」；mymemory 译作「Дата поставки」"
-    },
-    {
-      "src": "状态a",
-      "dst": "交货日期",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "дата поставки",
-      "note": "mymemory 译作「状态a」"
-    },
-    {
-      "src": "Дата\\ доставки|Дата\\ доставки:",
-      "dst": "дата поставки",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "交货日期",
-      "note": "opus 译作「Дата доставки」；mymemory 译作「Дата доставки:」"
-    },
-    {
-      "src": "航运",
-      "dst": "发货",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "отгрузка",
-      "note": "opus 译作「航运」"
-    },
-    {
-      "src": "Доставка|Отгрузка",
-      "dst": "отгрузка",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "发货",
-      "note": "opus 译作「Доставка」；mymemory 译作「Отгрузка」"
-    },
-    {
-      "src": "交付|交货",
-      "dst": "运费",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "доставка",
-      "note": "opus 译作「交付」；mymemory 译作「交货」"
-    },
-    {
-      "src": "Грузовая\\ перевозка|Стоимость\\ перевозки",
-      "dst": "доставка",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "运费",
-      "note": "opus 译作「Грузовая перевозка」；mymemory 译作「Стоимость перевозки」"
-    },
-    {
-      "src": "无交货|无运货数|不包括派送",
-      "dst": "不含运费",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "без учёта доставки",
-      "note": "opus 译作「无交货」；opus 译作「无运货数」；mymemory 译作「不包括派送」"
-    },
-    {
-      "src": "Исключая фрахт",
-      "dst": "без учёта доставки",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "不含运费",
-      "note": "opus 译作「Исключая фрахт」"
-    },
-    {
-      "src": "包括交付|包括装运|包括派送",
-      "dst": "含运费",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "включая доставку",
-      "note": "opus 译作「包括交付」；opus 译作「包括装运」；mymemory 译作「包括派送」"
-    },
-    {
-      "src": "Включая\\ фрахт|Доставка\\ включена",
-      "dst": "включая доставку",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "含运费",
-      "note": "opus 译作「Включая фрахт」；mymemory 译作「Доставка включена」"
-    },
-    {
-      "src": "生产时间|时限",
-      "dst": "生产周期",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "срок производства",
-      "note": "opus 译作「生产时间」；opus 译作「时限」"
-    },
-    {
-      "src": "Цикл\\ производства|Производственный\\ цикл",
-      "dst": "срок производства",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "生产周期",
-      "note": "opus 译作「Цикл производства」；mymemory 译作「Производственный цикл」"
-    },
-    {
-      "src": "托运|货物批量|批量商品",
-      "dst": "一批货",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "партия товара",
-      "note": "opus 译作「托运」；opus 译作「货物批量」；mymemory 译作「批量商品」"
-    },
-    {
-      "src": "Поставка\\.|Партия\\ товара",
-      "dst": "партия товара",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "一批货",
-      "note": "opus 译作「Поставка.」；mymemory 译作「Партия товара」"
-    },
-    {
-      "src": "容器",
-      "dst": "集装箱",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "контейнер",
-      "note": "mymemory 译作「容器」"
-    },
-    {
-      "src": "Контейнеры|Контейнер",
-      "dst": "контейнер",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "集装箱",
-      "note": "opus 译作「Контейнеры」；mymemory 译作「Контейнер」"
-    },
-    {
-      "src": "货仓",
-      "dst": "仓库",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "склад",
-      "note": "mymemory 译作「货仓」"
-    },
-    {
-      "src": "Хранилище|Складской",
-      "dst": "склад",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "仓库",
-      "note": "opus 译作「Хранилище」；mymemory 译作「Складской」"
-    },
-    {
-      "src": "Таможенная\\ служба|Таможня",
-      "dst": "таможня",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "海关",
-      "note": "opus 译作「Таможенная служба」；mymemory 译作「Таможня」"
-    },
-    {
-      "src": "海关申报报关报关|五、报关单",
-      "dst": "报关单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "таможенная декларация",
-      "note": "opus 译作「海关申报报关报关」；mymemory 译作「五、报关单」"
-    },
-    {
-      "src": "Таможенная\\ декларация|Таможенное\\ оформление",
-      "dst": "таможенная декларация",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "报关单",
-      "note": "opus 译作「Таможенная декларация」；mymemory 译作「Таможенное оформление」"
-    },
-    {
-      "src": "货运货物|重锤",
-      "dst": "货物",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "груз",
-      "note": "opus 译作「货运货物」；mymemory 译作「重锤」"
-    },
-    {
-      "src": "Товары",
-      "dst": "груз",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "货物",
-      "note": "opus 译作「Товары」"
-    },
-    {
-      "src": "Транспортные расходы",
-      "dst": "транспортные расходы",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "运输费用",
-      "note": "opus 译作「Транспортные расходы」"
-    },
-    {
-      "src": "样本|型型|图案|范例",
-      "dst": "样品",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "образец",
-      "note": "opus 译作「样本」；opus 译作「型型」；mymemory 译作「图案」；mymemory 译作「范例」"
-    },
-    {
-      "src": "Образцы|Образец",
-      "dst": "образец",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "样品",
-      "note": "opus 译作「Образцы」；mymemory 译作「Образец」"
-    },
-    {
-      "src": "高质量",
-      "dst": "质量",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "качество",
-      "note": "mymemory 译作「高质量」"
-    },
-    {
-      "src": "Качество|Вес",
-      "dst": "качество",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "质量",
-      "note": "opus 译作「Качество」；mymemory 译作「Вес」"
-    },
-    {
-      "src": "1)产品合格证；",
-      "dst": "质量证书",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "сертификат качества",
-      "note": "mymemory 译作「1)产品合格证；」"
-    },
-    {
-      "src": "Свидетельство\\ о\\ качестве|Сертификат\\ качества",
-      "dst": "сертификат качества",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "质量证书",
-      "note": "opus 译作「Свидетельство о качестве」；mymemory 译作「Сертификат качества」"
-    },
-    {
-      "src": "具体规格|指定|安装明细",
-      "dst": "规格",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "спецификация",
-      "note": "opus 译作「具体规格」；opus 译作「指定」；mymemory 译作「安装明细」"
-    },
-    {
-      "src": "Технические\\ требования|Параметры",
-      "dst": "спецификация",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "规格",
-      "note": "opus 译作「Технические требования」；mymemory 译作「Параметры」"
-    },
-    {
-      "src": "标准品",
-      "dst": "标准",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "стандарт",
-      "note": "mymemory 译作「标准品」"
-    },
-    {
-      "src": "Стандартные|СТАНДАРТ",
-      "dst": "стандарт",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "标准",
-      "note": "opus 译作「Стандартные」；mymemory 译作「СТАНДАРТ」"
-    },
-    {
-      "src": "担保|保障监督|收|质保",
-      "dst": "保质期",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "гарантия",
-      "note": "opus 译作「担保」；opus 译作「保障监督」；mymemory 译作「收」；mymemory 译作「质保」"
-    },
-    {
-      "src": "Период\\ качества|Срок\\ годности",
-      "dst": "гарантия",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "保质期",
-      "note": "opus 译作「Период качества」；mymemory 译作「Срок годности」"
-    },
-    {
-      "src": "符合|合规性|符介",
-      "dst": "合格",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "соответствие",
-      "note": "opus 译作「符合」；opus 译作「合规性」；mymemory 译作「符介」"
-    },
-    {
-      "src": "Право\\ на\\ получение|Соотв\\.\\ треб\\.",
-      "dst": "соответствие",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "合格",
-      "note": "opus 译作「Право на получение」；mymemory 译作「Соотв. треб.」"
-    },
-    {
-      "src": "Упаковка",
-      "dst": "упаковка",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "包装",
-      "note": "opus 译作「Упаковка」"
-    },
-    {
-      "src": "容器|塔拉|皮重",
-      "dst": "外包装",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "тара",
-      "note": "opus 译作「容器」；opus 译作「塔拉」；mymemory 译作「皮重」"
-    },
-    {
-      "src": "Перепаковка|Наружная\\ упаковка",
-      "dst": "тара",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "外包装",
-      "note": "opus 译作「Перепаковка」；mymemory 译作「Наружная упаковка」"
-    },
-    {
-      "src": "标记",
-      "dst": "唛头",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "маркировка",
-      "note": "opus 译作「标记」"
-    },
-    {
-      "src": "\\-\\ Голова\\.|Маркировка",
-      "dst": "маркировка",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "唛头",
-      "note": "opus 译作「- Голова.」；mymemory 译作「Маркировка」"
-    },
-    {
-      "src": "调盘|托班",
-      "dst": "托盘",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "поддон",
-      "note": "opus 译作「调盘」；mymemory 译作「托班」"
-    },
-    {
-      "src": "Лоток|Поднос",
-      "dst": "поддон",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "托盘",
-      "note": "opus 译作「Лоток」；mymemory 译作「Поднос」"
-    },
-    {
-      "src": "方框一的“一纸|盒盒盒",
-      "dst": "纸箱",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "картонная коробка",
-      "note": "opus 译作「方框一的“一纸」；opus 译作「盒盒盒」"
-    },
-    {
-      "src": "Вставка",
-      "dst": "картонная коробка",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "纸箱",
-      "note": "opus 译作「Вставка」"
-    },
-    {
-      "src": "Число|Кол\\-во",
-      "dst": "количество",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "数量",
-      "note": "opus 译作「Число」；mymemory 译作「Кол-во」"
-    },
-    {
-      "src": "吨数|ton|流行程度：",
-      "dst": "吨",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "тонна",
-      "note": "opus 译作「吨数」；mymemory 译作「ton」；mymemory 译作「流行程度：」"
-    },
-    {
-      "src": "тонн|тонны",
-      "dst": "тонна",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "吨",
-      "note": "opus 译作「тонн」；mymemory 译作「тонны」"
-    },
-    {
-      "src": "事项|这件事情。",
-      "dst": "件",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "штука",
-      "note": "opus 译作「事项」；opus 译作「这件事情。」"
-    },
-    {
-      "src": "Приложение|ент",
-      "dst": "штука",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "件",
-      "note": "opus 译作「Приложение」；mymemory 译作「ент」"
-    },
-    {
-      "src": "设定|成套|包",
-      "dst": "套",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "комплект",
-      "note": "opus 译作「设定」；mymemory 译作「成套」；mymemory 译作「包」"
-    },
-    {
-      "src": "Выполнить|компл\\.",
-      "dst": "комплект",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "套",
-      "note": "opus 译作「Выполнить」；mymemory 译作「компл.」"
-    },
-    {
-      "src": "条约条约的条约|条约",
-      "dst": "合同",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "договор",
-      "note": "opus 译作「条约条约的条约」；opus 译作「条约」"
-    },
-    {
-      "src": "Контракты|ДОГОВОР",
-      "dst": "договор",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "合同",
-      "note": "opus 译作「Контракты」；mymemory 译作「ДОГОВОР」"
-    },
-    {
-      "src": "合同|合同金额",
-      "dst": "外贸合同",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "контракт",
-      "note": "opus 译作「合同」；mymemory 译作「合同金额」"
-    },
-    {
-      "src": "Внешнеторговые контракты",
-      "dst": "контракт",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "外贸合同",
-      "note": "opus 译作「Внешнеторговые контракты」"
-    },
-    {
-      "src": "动画|发票",
-      "dst": "商业发票",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "инвойс",
-      "note": "opus 译作「动画」；mymemory 译作「发票」"
-    },
-    {
-      "src": "Коммерческие счета-фактуры",
-      "dst": "инвойс",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "商业发票",
-      "note": "opus 译作「Коммерческие счета-фактуры」"
-    },
-    {
-      "src": "包装表|包装工作表|装箱单。",
-      "dst": "装箱单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "упаковочный лист",
-      "note": "opus 译作「包装表」；opus 译作「包装工作表」；mymemory 译作「装箱单。」"
-    },
-    {
-      "src": "Загрузка\\ списков|Упаковочный\\ лист\\.",
-      "dst": "упаковочный лист",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "装箱单",
-      "note": "opus 译作「Загрузка списков」；mymemory 译作「Упаковочный лист.」"
-    },
-    {
-      "src": "托运单|提单号",
-      "dst": "运单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "накладная",
-      "note": "opus 译作「托运单」；mymemory 译作「提单号」"
-    },
-    {
-      "src": "Транспортные\\ манифесты|Заказ",
-      "dst": "накладная",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "运单",
-      "note": "opus 译作「Транспортные манифесты」；mymemory 译作「Заказ」"
-    },
-    {
-      "src": "提单单|商",
-      "dst": "提单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "коносамент",
-      "note": "opus 译作「提单单」；opus 译作「商」"
-    },
-    {
-      "src": "Коносамент",
-      "dst": "коносамент",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "提单",
-      "note": "mymemory 译作「Коносамент」"
-    },
-    {
-      "src": "条约附件|第_______号合同附件1",
-      "dst": "合同附件",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "приложение к договору",
-      "note": "opus 译作「条约附件」；mymemory 译作「第_______号合同附件1」"
-    },
-    {
-      "src": "Прилагаемые\\ к\\ контракту|Приложение\\ к\\ Контракту:",
-      "dst": "приложение к договору",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "合同附件",
-      "note": "opus 译作「Прилагаемые к контракту」；mymemory 译作「Приложение к Контракту:」"
-    },
-    {
-      "src": "你好。你好。|您好！",
-      "dst": "您好",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Здравствуйте",
-      "note": "opus 译作「你好。你好。」；mymemory 译作「您好！」"
-    },
-    {
-      "src": "Привет\\.|Здравствуйте,",
-      "dst": "Здравствуйте",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "您好",
-      "note": "opus 译作「Привет.」；mymemory 译作「Здравствуйте,」"
-    },
-    {
-      "src": "亲爱的|主席",
-      "dst": "尊敬的",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Уважаемый",
-      "note": "opus 译作「亲爱的」；mymemory 译作「主席」"
-    },
-    {
-      "src": "Уважение\\.|Дорогие",
-      "dst": "Уважаемый",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "尊敬的",
-      "note": "opus 译作「Уважение.」；mymemory 译作「Дорогие」"
-    },
-    {
-      "src": "尊重点|您尊敬的",
-      "dst": "此致敬礼",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "С уважением",
-      "note": "opus 译作「尊重点」；mymemory 译作「您尊敬的」"
-    },
-    {
-      "src": "\\-\\ За\\ ваше\\ приветствие\\.|С\\ наилучшими\\ пожеланиями!",
-      "dst": "С уважением",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "此致敬礼",
-      "note": "opus 译作「- За ваше приветствие.」；mymemory 译作「С наилучшими пожеланиями!」"
-    },
-    {
-      "src": "确认|我们重申:",
-      "dst": "我们确认",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "подтверждаем",
-      "note": "opus 译作「确认」；mymemory 译作「我们重申:」"
-    },
-    {
-      "src": "Мы\\ уверены\\.|Мы\\ подтверждаем,\\ что:",
-      "dst": "подтверждаем",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "我们确认",
-      "note": "opus 译作「Мы уверены.」；mymemory 译作「Мы подтверждаем, что:」"
-    },
-    {
-      "src": "汇报请报告|请告知我们",
-      "dst": "请告知",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "просим сообщить",
-      "note": "opus 译作「汇报请报告」；mymemory 译作「请告知我们」"
-    },
-    {
-      "src": "Пожалуйста,\\ сообщите\\.|Сообщите\\ нам",
-      "dst": "просим сообщить",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "请告知",
-      "note": "opus 译作「Пожалуйста, сообщите.」；mymemory 译作「Сообщите нам」"
-    },
-    {
-      "src": "请求|获取|查询",
-      "dst": "询价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "запрос",
-      "note": "opus 译作「请求」；mymemory 译作「获取」；mymemory 译作「查询」"
-    },
-    {
-      "src": "Запрос котировок",
-      "dst": "запрос",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "询价",
-      "note": "opus 译作「Запрос котировок」"
-    },
-    {
-      "src": "提议|建议提案提案|句子|提交人",
-      "dst": "报价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "предложение",
-      "note": "opus 译作「提议」；opus 译作「建议提案提案」；mymemory 译作「句子」；mymemory 译作「提交人」"
-    },
-    {
-      "src": "Цена|Коммерческое\\ Предложение",
-      "dst": "предложение",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "报价",
-      "note": "opus 译作「Цена」；mymemory 译作「Коммерческое Предложение」"
-    },
-    {
-      "src": "顺序|运单",
-      "dst": "订单",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "заказ",
-      "note": "opus 译作「顺序」；mymemory 译作「运单」"
-    },
-    {
-      "src": "Порядок|Заказ:",
-      "dst": "заказ",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "订单",
-      "note": "opus 译作「Порядок」；mymemory 译作「Заказ:」"
-    },
-    {
-      "src": "电动|产材|私人物品|一，项目编号",
-      "dst": "货号",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "артикул",
-      "note": "opus 译作「电动」；opus 译作「产材」；mymemory 译作「私人物品」；mymemory 译作「一，项目编号」"
-    },
-    {
-      "src": "Груз\\.|Артикул",
-      "dst": "артикул",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "货号",
-      "note": "opus 译作「Груз.」；mymemory 译作「Артикул」"
-    },
-    {
-      "src": "货物名称",
-      "dst": "品名",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "наименование товара",
-      "note": "opus 译作「货物名称」"
-    },
-    {
-      "src": "Число\\ терминов|Наименование\\ товара",
-      "dst": "наименование товара",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "品名",
-      "note": "opus 译作「Число терминов」；mymemory 译作「Наименование товара」"
-    },
-    {
-      "src": "产品编码|产品生产编码|商品编号",
-      "dst": "商品编码",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "код товара",
-      "note": "opus 译作「产品编码」；opus 译作「产品生产编码」；mymemory 译作「商品编号」"
-    },
-    {
-      "src": "Товарный\\ код|Артикул\\ товара",
-      "dst": "код товара",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "商品编码",
-      "note": "opus 译作「Товарный код」；mymemory 译作「Артикул товара」"
-    },
-    {
-      "src": "单位|股",
-      "dst": "计量单位",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "единица измерения",
-      "note": "opus 译作「单位」；opus 译作「股」"
-    },
-    {
-      "src": "Единица\\ измерения|Ед\\.Изм\\.",
-      "dst": "единица измерения",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "计量单位",
-      "note": "opus 译作「Единица измерения」；mymemory 译作「Ед.Изм.」"
-    },
-    {
-      "src": "制造商|生产单位|生产企业",
-      "dst": "生产厂家",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "производитель",
-      "note": "opus 译作「制造商」；mymemory 译作「生产单位」；mymemory 译作「生产企业」"
-    },
-    {
-      "src": "Производство|Производитель",
-      "dst": "производитель",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "生产厂家",
-      "note": "opus 译作「Производство」；mymemory 译作「Производитель」"
-    },
-    {
-      "src": "第一",
-      "dst": "供应商",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "поставщик",
-      "note": "mymemory 译作「第一」"
-    },
-    {
-      "src": "Поставщики|Поставщик",
-      "dst": "поставщик",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "供应商",
-      "note": "opus 译作「Поставщики」；mymemory 译作「Поставщик」"
-    },
-    {
-      "src": "买|买家",
-      "dst": "买方",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "покупатель",
-      "note": "opus 译作「买」；opus 译作「买家」"
-    },
-    {
-      "src": "Покупатель",
-      "dst": "покупатель",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "买方",
-      "note": "opus 译作「Покупатель」"
-    },
-    {
-      "src": "下表显示了违法人数：|鲁比|RUB",
-      "dst": "卢布",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "руб.",
-      "note": "opus 译作「下表显示了违法人数：」；opus 译作「鲁比」；mymemory 译作「RUB」"
-    },
-    {
-      "src": "Смазка\\.|\\(руб\\.\\)",
-      "dst": "руб.",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "卢布",
-      "note": "opus 译作「Смазка.」；mymemory 译作「(руб.)」"
-    },
-    {
-      "src": "货币|货币汇率",
-      "dst": "汇率",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "курс валюты",
-      "note": "opus 译作「货币」；mymemory 译作「货币汇率」"
-    },
-    {
-      "src": "Обменный\\ курс|Курс\\ \\?\\?",
-      "dst": "курс валюты",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "汇率",
-      "note": "opus 译作「Обменный курс」；mymemory 译作「Курс ??」"
-    },
-    {
-      "src": "净加权净数",
-      "dst": "净重",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "вес нетто",
-      "note": "opus 译作「净加权净数」"
-    },
-    {
-      "src": "Вес\\ нетто|нетто",
-      "dst": "вес нетто",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "净重",
-      "note": "opus 译作「Вес нетто」；mymemory 译作「нетто」"
-    },
-    {
-      "src": "毛加权",
-      "dst": "毛重",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "вес брутто",
-      "note": "opus 译作「毛加权」"
-    },
-    {
-      "src": "Валовой\\ вес|毛重\\ Вес\\ брутто",
-      "dst": "вес брутто",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "毛重",
-      "note": "opus 译作「Валовой вес」；mymemory 译作「毛重 Вес брутто」"
-    },
-    {
-      "src": "维|维量|方面",
-      "dst": "外形尺寸",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "габариты",
-      "note": "opus 译作「维」；opus 译作「维量」；mymemory 译作「方面」"
-    },
-    {
-      "src": "Размер формы",
-      "dst": "габариты",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "外形尺寸",
-      "note": "opus 译作「Размер формы」"
-    },
-    {
-      "src": "体体体|口译",
-      "dst": "体积",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "объём",
-      "note": "opus 译作「体体体」；opus 译作「口译」"
-    },
-    {
-      "src": "Объем|Объём",
-      "dst": "объём",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "体积",
-      "note": "opus 译作「Объем」；mymemory 译作「Объём」"
-    },
-    {
-      "src": "付款表格的表格|付款表格",
-      "dst": "付款方式",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "форма оплаты",
-      "note": "opus 译作「付款表格的表格」；opus 译作「付款表格」"
-    },
-    {
-      "src": "Порядок\\ оплаты|Способ\\ оплаты",
-      "dst": "форма оплаты",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "付款方式",
-      "note": "opus 译作「Порядок оплаты」；mymemory 译作「Способ оплаты」"
-    },
-    {
-      "src": "应付款|到期日",
-      "dst": "付款期限",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "срок оплаты",
-      "note": "opus 译作「应付款」；mymemory 译作「到期日」"
-    },
-    {
-      "src": "Срок\\ платежа|Условия\\ оплаты",
-      "dst": "срок оплаты",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "付款期限",
-      "note": "opus 译作「Срок платежа」；mymemory 译作「Условия оплаты」"
-    },
-    {
-      "src": "供应条件|成交方式",
-      "dst": "交货条件",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "условия поставки",
-      "note": "opus 译作「供应条件」；mymemory 译作「成交方式」"
-    },
-    {
-      "src": "Условия\\ доставки|Сроки\\ доставки:",
-      "dst": "условия поставки",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "交货条件",
-      "note": "opus 译作「Условия доставки」；mymemory 译作「Сроки доставки:」"
-    },
-    {
-      "src": "铁路铁路运输|铁路|轨道交通",
-      "dst": "铁路运输",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "железнодорожная перевозка",
-      "note": "opus 译作「铁路铁路运输」；opus 译作「铁路」；mymemory 译作「轨道交通」"
-    },
-    {
-      "src": "Железнодорожный\\ транспорт|Транспортировка\\ по\\ железной\\ дороге",
-      "dst": "железнодорожная перевозка",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "铁路运输",
-      "note": "opus 译作「Железнодорожный транспорт」；mymemory 译作「Транспортировка по железной дороге」"
-    },
-    {
-      "src": "海上|水运|水路运输",
-      "dst": "海运",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "морская перевозка",
-      "note": "opus 译作「海上」；opus 译作「水运」；mymemory 译作「水路运输」"
-    },
-    {
-      "src": "Морской транспорт",
-      "dst": "морская перевозка",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "海运",
-      "note": "opus 译作「Морской транспорт」"
-    },
-    {
-      "src": "空中业务",
-      "dst": "空运",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "авиаперевозка",
-      "note": "opus 译作「空中业务」"
-    },
-    {
-      "src": "Воздушный транспорт",
-      "dst": "авиаперевозка",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "空运",
-      "note": "opus 译作「Воздушный транспорт」"
-    },
-    {
-      "src": "离岸|FOB",
-      "dst": "离岸价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "ФОБ",
-      "note": "opus 译作「离岸」；mymemory 译作「FOB」"
-    },
-    {
-      "src": "Цена\\ FOB|FOB",
-      "dst": "ФОБ",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "离岸价",
-      "note": "opus 译作「Цена FOB」；mymemory 译作「FOB」"
-    },
-    {
-      "src": "CIF\\ 到|\\(到岸价格\\)",
-      "dst": "到岸价",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "СИФ",
-      "note": "opus 译作「CIF 到」；mymemory 译作「(到岸价格)」"
-    },
-    {
-      "src": "ЦРУ\\.|CIF",
-      "dst": "СИФ",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "到岸价",
-      "note": "opus 译作「ЦРУ.」；mymemory 译作「CIF」"
-    },
-    {
-      "src": "Счета\\-фактуры|Инвойс",
-      "dst": "счёт-фактура",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "发票",
-      "note": "opus 译作「Счета-фактуры」；mymemory 译作「Инвойс」"
-    },
-    {
-      "src": "符合符合要求证明书|符合要求证明",
-      "dst": "合格证",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "сертификат соответствия",
-      "note": "opus 译作「符合符合要求证明书」；opus 译作「符合要求证明」"
-    },
-    {
-      "src": "Аккредитация|Сертификат\\ соответствия",
-      "dst": "сертификат соответствия",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "合格证",
-      "note": "opus 译作「Аккредитация」；mymemory 译作「Сертификат соответствия」"
-    },
-    {
-      "src": "汤加|FEACN",
-      "dst": "海关编码",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "ТН ВЭД",
-      "note": "opus 译作「汤加」；mymemory 译作「FEACN」"
-    },
-    {
-      "src": "Таможенный\\ кодекс|Таможенный\\ код",
-      "dst": "ТН ВЭД",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "海关编码",
-      "note": "opus 译作「Таможенный кодекс」；mymemory 译作「Таможенный код」"
-    },
-    {
-      "src": "索偿|额外费用",
-      "dst": "索赔",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "претензия",
-      "note": "opus 译作「索偿」；mymemory 译作「额外费用」"
-    },
-    {
-      "src": "Претензия|претензии",
-      "dst": "претензия",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "索赔",
-      "note": "opus 译作「Претензия」；mymemory 译作「претензии」"
-    },
-    {
-      "src": "好",
-      "dst": "罚款",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "штраф",
-      "note": "opus 译作「好」"
-    },
-    {
-      "src": "Хорошо\\.|Штраф",
-      "dst": "штраф",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "罚款",
-      "note": "opus 译作「Хорошо.」；mymemory 译作「Штраф」"
-    },
-    {
-      "src": "不可抗力因素",
-      "dst": "不可抗力",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "форс-мажор",
-      "note": "mymemory 译作「不可抗力因素」"
-    },
-    {
-      "src": "ОБСТОЯТЕЛЬСТВА НЕПРЕОДОЛИМОЙ СИЛЫ",
-      "dst": "форс-мажор",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "不可抗力",
-      "note": "mymemory 译作「ОБСТОЯТЕЛЬСТВА НЕПРЕОДОЛИМОЙ СИЛЫ」"
-    },
-    {
-      "src": "保证期|保修期限",
-      "dst": "保修期",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "гарантийный срок",
-      "note": "opus 译作「保证期」；mymemory 译作「保修期限」"
-    },
-    {
-      "src": "гарантийный\\ период|Срок\\ гарантии",
-      "dst": "гарантийный срок",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "保修期",
-      "note": "opus 译作「гарантийный период」；mymemory 译作「Срок гарантии」"
-    },
-    {
-      "src": "服装|工作服|套头衫",
-      "dst": "劳保服",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "спецодежда",
-      "note": "opus 译作「服装」；mymemory 译作「工作服」；mymemory 译作「套头衫」"
-    },
-    {
-      "src": "\\-\\ Я\\ коп\\.|Одежда\\ для\\ страхования\\ труда",
-      "dst": "спецодежда",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "劳保服",
-      "note": "opus 译作「- Я коп.」；mymemory 译作「Одежда для страхования труда」"
-    },
-    {
-      "src": "Перчатки\\.|Перчатки",
-      "dst": "перчатки",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "手套",
-      "note": "opus 译作「Перчатки.」；mymemory 译作「Перчатки」"
-    },
-    {
-      "src": "Mосква",
-      "dst": "Москва",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "莫斯科",
-      "note": "mymemory 译作「Mосква」"
-    },
-    {
-      "src": "г. Санкт-Петербург",
-      "dst": "Санкт-Петербург",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "圣彼得堡",
-      "note": "mymemory 译作「г. Санкт-Петербург」"
-    },
-    {
-      "src": "新闻社|(?i:n[aeiouy]*[vw][aeiouy]*s[aeiouy]*b[aeiouy]*rsk)",
-      "dst": "新西伯利亚",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Новосибирск",
-      "note": "opus 译作「新闻社」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Новая\\ Сибирь|Novosibirsk",
-      "dst": "Новосибирск",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "新西伯利亚",
-      "note": "opus 译作「Новая Сибирь」；mymemory 译作「Novosibirsk」"
-    },
-    {
-      "src": "凯瑟琳堡|Екатеринбург/叶卡捷琳堡|(?i:[aeiouy]*k[aeiouy]*t[aeiouy]*r[aeiouy]*nb[aeiouy]*rg)",
-      "dst": "叶卡捷琳堡",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Екатеринбург",
-      "note": "opus 译作「凯瑟琳堡」；mymemory 译作「Екатеринбург/叶卡捷琳堡」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Екатеринбург.",
-      "dst": "Екатеринбург",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "叶卡捷琳堡",
-      "note": "opus 译作「Екатеринбург.」"
-    },
-    {
-      "src": "下新高罗德|(?i:n[aeiouy]*zhn[aeiouy]*[aeiouy]*[\\s\\-]*n[aeiouy]*[vw]g[aeiouy]*r[aeiouy]*d)",
-      "dst": "下诺夫哥罗德",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Нижний Новгород",
-      "note": "opus 译作「下新高罗德」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "- Новгород.",
-      "dst": "Нижний Новгород",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "下诺夫哥罗德",
-      "note": "opus 译作「- Новгород.」"
-    },
-    {
-      "src": "Казан\\.|Кха\\ Сон",
-      "dst": "Казань",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "喀山",
-      "note": "opus 译作「Казан.」；mymemory 译作「Кха Сон」"
-    },
-    {
-      "src": "切利亚宾斯克|车里雅宾斯科|(?i:ch[aeiouy]*l[aeiouy]*[aeiouy]*b[aeiouy]*nsk)",
-      "dst": "车里雅宾斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Челябинск",
-      "note": "opus 译作「切利亚宾斯克」；mymemory 译作「车里雅宾斯科」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Шейя Бинск.",
-      "dst": "Челябинск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "车里雅宾斯克",
-      "note": "opus 译作「Шейя Бинск.」"
-    },
-    {
-      "src": "乌木|Омск/鄂木斯克|(?i:[aeiouy]*msk)",
-      "dst": "鄂木斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Омск",
-      "note": "opus 译作「乌木」；mymemory 译作「Омск/鄂木斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Омск!",
-      "dst": "Омск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "鄂木斯克",
-      "note": "opus 译作「Омск!」"
-    },
-    {
-      "src": "萨马拉acolora\\.\\ kgm|Самара/萨马拉|(?i:s[aeiouy]*m[aeiouy]*r[aeiouy]*)",
-      "dst": "萨马拉",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Самара",
-      "note": "opus 译作「萨马拉acolora. kgm」；mymemory 译作「Самара/萨马拉」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Самара.",
-      "dst": "Самара",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "萨马拉",
-      "note": "opus 译作「Самара.」"
-    },
-    {
-      "src": "罗斯托夫·唐|(?i:r[aeiouy]*st[aeiouy]*[vw][\\s\\-]*n[aeiouy]*[\\s\\-]*d[aeiouy]*n[aeiouy]*)",
-      "dst": "顿河畔罗斯托夫",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Ростов-на-Дону",
-      "note": "opus 译作「罗斯托夫·唐」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Ростов, на реке Дон.",
-      "dst": "Ростов-на-Дону",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "顿河畔罗斯托夫",
-      "note": "opus 译作「Ростов, на реке Дон.」"
-    },
-    {
-      "src": "Уфа.",
-      "dst": "Уфа",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "乌法",
-      "note": "opus 译作「Уфа.」"
-    },
-    {
-      "src": "Красноярск\\.|г\\.\\ Красноярск",
-      "dst": "Красноярск",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "克拉斯诺亚尔斯克",
-      "note": "opus 译作「Красноярск.」；mymemory 译作「г. Красноярск」"
-    },
-    {
-      "src": "人|(?i:[vw][aeiouy]*r[aeiouy]*n[aeiouy]*zh)",
-      "dst": "沃罗涅日",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Воронеж",
-      "note": "opus 译作「人」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Воронеж\\.|г\\.\\ Воронеж",
-      "dst": "Воронеж",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "沃罗涅日",
-      "note": "opus 译作「Воронеж.」；mymemory 译作「г. Воронеж」"
-    },
-    {
-      "src": "双月|Пермь/彼尔姆|(?i:p[aeiouy]*rm)",
-      "dst": "彼尔姆",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Пермь",
-      "note": "opus 译作「双月」；mymemory 译作「Пермь/彼尔姆」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Перм.",
-      "dst": "Пермь",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "彼尔姆",
-      "note": "opus 译作「Перм.」"
-    },
-    {
-      "src": "伏尔格格|\\[伏尔加格勒\\]|(?i:[vw][aeiouy]*lg[aeiouy]*gr[aeiouy]*d)",
-      "dst": "伏尔加格勒",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Волгоград",
-      "note": "opus 译作「伏尔格格」；mymemory 译作「[伏尔加格勒]」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Волгаград\\.|\\[Волгоград\\]",
-      "dst": "Волгоград",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "伏尔加格勒",
-      "note": "opus 译作「Волгаград.」；mymemory 译作「[Волгоград]」"
-    },
-    {
-      "src": "瑞Dard|Краснодар/克拉斯诺达尔|(?i:kr[aeiouy]*sn[aeiouy]*d[aeiouy]*r)",
-      "dst": "克拉斯诺达尔",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Краснодар",
-      "note": "opus 译作「瑞Dard」；mymemory 译作「Краснодар/克拉斯诺达尔」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Краснодар.",
-      "dst": "Краснодар",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "克拉斯诺达尔",
-      "note": "opus 译作「Краснодар.」"
-    },
-    {
-      "src": "Саратов\\.|г\\.\\ Саратов",
-      "dst": "Саратов",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "萨拉托夫",
-      "note": "opus 译作「Саратов.」；mymemory 译作「г. Саратов」"
-    },
-    {
-      "src": "暗暗|秋明州|(?i:t[aeiouy]*[aeiouy]*m[aeiouy]*n)",
-      "dst": "秋明",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Тюмень",
-      "note": "opus 译作「暗暗」；mymemory 译作「秋明州」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Осень.",
-      "dst": "Тюмень",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "秋明",
-      "note": "opus 译作「Осень.」"
-    },
-    {
-      "src": "托利亚蒂|Тольятти/陶里亚蒂|(?i:t[aeiouy]*l[aeiouy]*[aeiouy]*tt[aeiouy]*)",
-      "dst": "陶里亚蒂",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Тольятти",
-      "note": "opus 译作「托利亚蒂」；mymemory 译作「Тольятти/陶里亚蒂」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Торрити.",
-      "dst": "Тольятти",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "陶里亚蒂",
-      "note": "opus 译作「Торрити.」"
-    },
-    {
-      "src": "伊日夫斯克|(?i:[aeiouy]*zh[aeiouy]*[vw]sk)",
-      "dst": "伊热夫斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Ижевск",
-      "note": "opus 译作「伊日夫斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Иревск.",
-      "dst": "Ижевск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "伊热夫斯克",
-      "note": "opus 译作「Иревск.」"
-    },
-    {
-      "src": "白|巴瑙尔|(?i:b[aeiouy]*rn[aeiouy]*[aeiouy]*l)",
-      "dst": "巴尔瑙尔",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Барнаул",
-      "note": "opus 译作「白」；mymemory 译作「巴瑙尔」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Барнаур.",
-      "dst": "Барнаул",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "巴尔瑙尔",
-      "note": "opus 译作「Барнаур.」"
-    },
-    {
-      "src": "Уляновский",
-      "dst": "Ульяновск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "乌里扬诺夫斯克",
-      "note": "opus 译作「Уляновский」"
-    },
-    {
-      "src": "Иркутск/伊尔库茨克|(?i:[aeiouy]*rk[aeiouy]*tsk)",
-      "dst": "伊尔库茨克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Иркутск",
-      "note": "mymemory 译作「Иркутск/伊尔库茨克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Хабаровск/哈巴罗夫斯克|(?i:kh[aeiouy]*b[aeiouy]*r[aeiouy]*[vw]sk)",
-      "dst": "哈巴罗夫斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Хабаровск",
-      "note": "mymemory 译作「Хабаровск/哈巴罗夫斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Хабаровск.",
-      "dst": "Хабаровск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "哈巴罗夫斯克",
-      "note": "opus 译作「Хабаровск.」"
-    },
-    {
-      "src": "海参松|(?i:[vw]l[aeiouy]*d[aeiouy]*[vw][aeiouy]*st[aeiouy]*k)",
-      "dst": "符拉迪沃斯托克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Владивосток",
-      "note": "opus 译作「海参松」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Владивосток.",
-      "dst": "Владивосток",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "符拉迪沃斯托克",
-      "note": "opus 译作「Владивосток.」"
-    },
-    {
-      "src": "贾罗斯拉夫|(?i:[aeiouy]*[aeiouy]*r[aeiouy]*sl[aeiouy]*[vw]l)",
-      "dst": "雅罗斯拉夫尔",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Ярославль",
-      "note": "opus 译作「贾罗斯拉夫」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Ярославл.",
-      "dst": "Ярославль",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "雅罗斯拉夫尔",
-      "note": "opus 译作「Ярославл.」"
-    },
-    {
-      "src": "马哈卡拉|(?i:m[aeiouy]*kh[aeiouy]*chk[aeiouy]*l[aeiouy]*)",
-      "dst": "马哈奇卡拉",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Махачкала",
-      "note": "opus 译作「马哈卡拉」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Махачи Кара.",
-      "dst": "Махачкала",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "马哈奇卡拉",
-      "note": "opus 译作「Махачи Кара.」"
-    },
-    {
-      "src": "托木|(?i:t[aeiouy]*msk)",
-      "dst": "托木斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Томск",
-      "note": "opus 译作「托木」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Томск.",
-      "dst": "Томск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "托木斯克",
-      "note": "opus 译作「Томск.」"
-    },
-    {
-      "src": "新俄文新俄文Name|(?i:n[aeiouy]*[vw][aeiouy]*r[aeiouy]*ss[aeiouy]*[aeiouy]*sk)",
-      "dst": "新罗西斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Новороссийск",
-      "note": "opus 译作「新俄文新俄文Name」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "Новый Розиск.",
-      "dst": "Новороссийск",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "新罗西斯克",
-      "note": "opus 译作「Новый Розиск.」"
-    },
-    {
-      "src": "加内宁格|莫斯科地区\\]|(?i:k[aeiouy]*l[aeiouy]*n[aeiouy]*ngr[aeiouy]*d)",
-      "dst": "加里宁格勒",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Калининград",
-      "note": "opus 译作「加内宁格」；mymemory 译作「莫斯科地区]」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "г. Калининград",
-      "dst": "Калининград",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "加里宁格勒",
-      "note": "mymemory 译作「г. Калининград」"
-    },
-    {
-      "src": "Привет\\.|привет",
-      "dst": "Здравствуйте",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "你好",
-      "note": "opus 译作「Привет.」；mymemory 译作「привет」"
-    },
-    {
-      "src": "Ты\\.|\\{\\}\\ \\(Вы\\)",
-      "dst": "Вы",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "您",
-      "note": "opus 译作「Ты.」；mymemory 译作「{} (Вы)」"
-    },
-    {
-      "src": "Желаю вам удачи.",
-      "dst": "С уважением",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "顺祝商祺",
-      "note": "opus 译作「Желаю вам удачи.」"
-    },
-    {
-      "src": "Спасибо, что спросили.",
-      "dst": "Благодарим за запрос",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "感谢您的询价",
-      "note": "opus 译作「Спасибо, что спросили.」"
-    },
-    {
-      "src": "Спасибо за письмо.",
-      "dst": "Благодарим за письмо",
-      "mode": "literal",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "感谢您的来信",
-      "note": "opus 译作「Спасибо за письмо.」"
-    },
-    {
-      "src": "Я\\ с\\ нетерпением\\ жду\\ возможности\\ работать\\ с\\ вами\\.|Будем\\ рады\\ сотрудничеству\\ с\\ вами",
-      "dst": "Надеемся на сотрудничество",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "期待与您合作",
-      "note": "opus 译作「Я с нетерпением жду возможности работать с вами.」；mymemory 译作「Будем рады сотрудничеству с вами」"
-    },
-    {
-      "src": "Я\\ жду\\ вашего\\ ответа\\.|С\\ нетерпением\\ ждем\\ вашего\\ ответа",
-      "dst": "Ждём вашего ответа",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "期待您的回复",
-      "note": "opus 译作「Я жду вашего ответа.」；mymemory 译作「С нетерпением ждем вашего ответа」"
-    },
-    {
-      "src": "Пожалуйста,\\ подтвердите\\.|Пожалуйста,\\ подтвердите",
-      "dst": "Просим подтвердить",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "请确认",
-      "note": "opus 译作「Пожалуйста, подтвердите.」；mymemory 译作「Пожалуйста, подтвердите」"
-    },
-    {
-      "src": "Потрясающе|Ткани",
-      "dst": "ткань",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "面料",
-      "note": "opus 译作「Потрясающе」；mymemory 译作「Ткани」"
-    },
-    {
-      "src": "Период\\ поставки|Срок\\ поставки",
-      "dst": "срок поставки",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "zh->ru"
-      ],
-      "when": "交货期",
-      "note": "opus 译作「Период поставки」；mymemory 译作「Срок поставки」"
-    },
-    {
-      "src": "红宝石",
-      "dst": "卢布",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "руб.",
-      "note": "上下文里的误译（原术语 руб.；供应商报价单里实际见到的）"
-    },
-    {
-      "src": "产材",
-      "dst": "货号",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "артикул",
-      "note": "上下文里的误译（原术语 артикул；供应商报价单里实际见到的）"
-    },
-    {
-      "src": "《全球货物和科技总协定》",
-      "dst": "ГОСТ（俄罗斯国家标准）",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "ГОСТ",
-      "note": "上下文里的误译（原术语 ГОСТ；实测 20 句贸易俄文时读出来的）"
-    },
-    {
-      "src": "拖延",
-      "dst": "延期",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "отсрочка",
-      "note": "上下文里的误译（原术语 отсрочка；实测 20 句贸易俄文时读出来的）"
-    },
-    {
-      "src": "(?i:m[aeiouy]*sk[vw][aeiouy]*|moscow)",
-      "dst": "莫斯科",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Москва",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:s[aeiouy]*nkt[\\s\\-]*p[aeiouy]*t[aeiouy]*rb[aeiouy]*rg|saint[\\s\\-]*petersburg|st\\.?[\\s\\-]*petersburg)",
-      "dst": "圣彼得堡",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Санкт-Петербург",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:k[aeiouy]*z[aeiouy]*n)",
-      "dst": "喀山",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Казань",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:[aeiouy]*f[aeiouy]*)",
-      "dst": "乌法",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Уфа",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:kr[aeiouy]*sn[aeiouy]*[aeiouy]*[aeiouy]*rsk)",
-      "dst": "克拉斯诺亚尔斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Красноярск",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:s[aeiouy]*r[aeiouy]*t[aeiouy]*[vw])",
-      "dst": "萨拉托夫",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Саратов",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    },
-    {
-      "src": "(?i:[aeiouy]*l[aeiouy]*[aeiouy]*n[aeiouy]*[vw]sk)",
-      "dst": "乌里扬诺夫斯克",
-      "mode": "regex",
-      "side": "target",
-      "pairs": [
-        "ru->zh"
-      ],
-      "when": "Ульяновск",
-      "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
-    }
-  ]
+ "version": 1,
+ "_note": "中俄外贸内置词库，由 scripts/build_trade_glossary.py 实测生成：大多数规则是拿多个引擎（离线 + 免费联网）逐条翻出来、跟期望对比得到的，把各引擎的错法合并进同一条规则，所以换引擎后仍然有效；少数几条来自供应商文件里实际见到的误译（note 里写明了）。每条规则都带 when 条件，只在原文出现该术语时才动手。可以在程序里继续添加，你自己的规则会覆盖这里的。",
+ "rules": [
+  {
+   "src": "单价",
+   "dst": "价格",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "цена",
+   "note": "mymemory 译作「单价」"
+  },
+  {
+   "src": "Цена",
+   "dst": "цена",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "价格",
+   "note": "opus 译作「Цена」"
+  },
+  {
+   "src": "价值|总额",
+   "dst": "总价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "стоимость",
+   "note": "opus 译作「价值」；mymemory 译作「总额」"
+  },
+  {
+   "src": "Общая цена",
+   "dst": "стоимость",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "总价",
+   "note": "opus 译作「Общая цена」"
+  },
+  {
+   "src": "每单位价格|单位单位价格",
+   "dst": "单价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "цена за единицу",
+   "note": "opus 译作「每单位价格」；opus 译作「单位单位价格」"
+  },
+  {
+   "src": "Удельная\\ цена|Цена\\ за\\ единицу",
+   "dst": "цена за единицу",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "单价",
+   "note": "opus 译作「Удельная цена」；mymemory 译作「Цена за единицу」"
+  },
+  {
+   "src": "价格清单|产品报价表",
+   "dst": "报价单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "прайс-лист",
+   "note": "opus 译作「价格清单」；mymemory 译作「产品报价表」"
+  },
+  {
+   "src": "Кот|Прайслист",
+   "dst": "прайс-лист",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "报价单",
+   "note": "opus 译作「Кот」；mymemory 译作「Прайслист」"
+  },
+  {
+   "src": "批发价格|全价",
+   "dst": "批发价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "оптовая цена",
+   "note": "opus 译作「批发价格」；opus 译作「全价」"
+  },
+  {
+   "src": "Оптовая цена",
+   "dst": "оптовая цена",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "批发价",
+   "note": "opus 译作「Оптовая цена」"
+  },
+  {
+   "src": "零售价格",
+   "dst": "零售价",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "розничная цена",
+   "note": "opus 译作「零售价格」"
+  },
+  {
+   "src": "Розничные цены",
+   "dst": "розничная цена",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "零售价",
+   "note": "opus 译作「Розничные цены」"
+  },
+  {
+   "src": "贴贴折扣",
+   "dst": "折扣",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "скидка",
+   "note": "opus 译作「贴贴折扣」"
+  },
+  {
+   "src": "Скидка",
+   "dst": "скидка",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "折扣",
+   "note": "opus 译作「Скидка」"
+  },
+  {
+   "src": "无增值税价格|不含税",
+   "dst": "不含税价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "цена без НДС",
+   "note": "opus 译作「无增值税价格」；mymemory 译作「不含税」"
+  },
+  {
+   "src": "Без\\ налоговой\\ цены|Без\\ учета\\ налога",
+   "dst": "цена без НДС",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "不含税价",
+   "note": "opus 译作「Без налоговой цены」；mymemory 译作「Без учета налога」"
+  },
+  {
+   "src": "增值税价格|价格包括增值税",
+   "dst": "含税价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "цена с НДС",
+   "note": "opus 译作「增值税价格」；mymemory 译作「价格包括增值税」"
+  },
+  {
+   "src": "Налоговая\\ цена|Цена\\ с\\ учетом\\ налогов",
+   "dst": "цена с НДС",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "含税价",
+   "note": "opus 译作「Налоговая цена」；mymemory 译作「Цена с учетом налогов」"
+  },
+  {
+   "src": "共计|总价",
+   "dst": "总金额",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "общая сумма",
+   "note": "opus 译作「共计」；mymemory 译作「总价」"
+  },
+  {
+   "src": "Общая сумма",
+   "dst": "общая сумма",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "总金额",
+   "note": "opus 译作「Общая сумма」"
+  },
+  {
+   "src": "最低批次|最小批次",
+   "dst": "起订量",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "минимальная партия",
+   "note": "opus 译作「最低批次」；mymemory 译作「最小批次」"
+  },
+  {
+   "src": "Запуск\\ установлен|Минимальный\\ объем\\ заказа",
+   "dst": "минимальная партия",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "起订量",
+   "note": "opus 译作「Запуск установлен」；mymemory 译作「Минимальный объем заказа」"
+  },
+  {
+   "src": "预付|预付款项：",
+   "dst": "预付款",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "предоплата",
+   "note": "opus 译作「预付」；mymemory 译作「预付款项：」"
+  },
+  {
+   "src": "Авансы|Денежный\\ аванс",
+   "dst": "предоплата",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "预付款",
+   "note": "opus 译作「Авансы」；mymemory 译作「Денежный аванс」"
+  },
+  {
+   "src": "全额支付|全额付款",
+   "dst": "全款",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "полная оплата",
+   "note": "opus 译作「全额支付」；opus 译作「全额付款」"
+  },
+  {
+   "src": "Всего|Полный",
+   "dst": "полная оплата",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "全款",
+   "note": "opus 译作「Всего」；mymemory 译作「Полный」"
+  },
+  {
+   "src": "账户付款|付钱。",
+   "dst": "按发票付款",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "оплата по счёту",
+   "note": "opus 译作「账户付款」；mymemory 译作「付钱。」"
+  },
+  {
+   "src": "Оплата\\ по\\ счету\\-фактуре|Оплатить\\ по\\ счету",
+   "dst": "оплата по счёту",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "按发票付款",
+   "note": "opus 译作「Оплата по счету-фактуре」；mymemory 译作「Оплатить по счету」"
+  },
+  {
+   "src": "银行电汇",
+   "dst": "银行转账",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "банковский перевод",
+   "note": "mymemory 译作「银行电汇」"
+  },
+  {
+   "src": "Банковские\\ переводы|перевод",
+   "dst": "банковский перевод",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "银行转账",
+   "note": "opus 译作「Банковские переводы」；mymemory 译作「перевод」"
+  },
+  {
+   "src": "认证资格认证",
+   "dst": "信用证",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "аккредитив",
+   "note": "opus 译作「认证资格认证」"
+  },
+  {
+   "src": "аккредитивы|Аккредетив",
+   "dst": "аккредитив",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "信用证",
+   "note": "opus 译作「аккредитивы」；mymemory 译作「Аккредетив」"
+  },
+  {
+   "src": "延迟|支付的延迟，天",
+   "dst": "账期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "отсрочка платежа",
+   "note": "opus 译作「延迟」；mymemory 译作「支付的延迟，天」"
+  },
+  {
+   "src": "Период|Период\\ счета",
+   "dst": "отсрочка платежа",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "账期",
+   "note": "opus 译作「Период」；mymemory 译作「Период счета」"
+  },
+  {
+   "src": "支付条件|付款条款",
+   "dst": "付款条件",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "условия оплаты",
+   "note": "opus 译作「支付条件」；mymemory 译作「付款条款」"
+  },
+  {
+   "src": "Условия\\ платежа|Условия\\ оплаты",
+   "dst": "условия оплаты",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "付款条件",
+   "note": "opus 译作「Условия платежа」；mymemory 译作「Условия оплаты」"
+  },
+  {
+   "src": "薪资账户薪金账户|账单",
+   "dst": "付款通知",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "счёт на оплату",
+   "note": "opus 译作「薪资账户薪金账户」；mymemory 译作「账单」"
+  },
+  {
+   "src": "Уведомления\\ об\\ уплате|Рекомендации\\ по\\ оплате",
+   "dst": "счёт на оплату",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "付款通知",
+   "note": "opus 译作「Уведомления об уплате」；mymemory 译作「Рекомендации по оплате」"
+  },
+  {
+   "src": "债务|债务宽减",
+   "dst": "欠款",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "задолженность",
+   "note": "opus 译作「债务」；mymemory 译作「债务宽减」"
+  },
+  {
+   "src": "Невыплаченные\\ взносы|Задолженность",
+   "dst": "задолженность",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "欠款",
+   "note": "opus 译作「Невыплаченные взносы」；mymemory 译作「Задолженность」"
+  },
+  {
+   "src": "交付时间|执行日期|装货货期：",
+   "dst": "交期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "срок поставки",
+   "note": "opus 译作「交付时间」；opus 译作「执行日期」；mymemory 译作「装货货期：」"
+  },
+  {
+   "src": "Период\\ представления|Дата\\ поставки",
+   "dst": "срок поставки",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "交期",
+   "note": "opus 译作「Период представления」；mymemory 译作「Дата поставки」"
+  },
+  {
+   "src": "状态a",
+   "dst": "交货日期",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "дата поставки",
+   "note": "mymemory 译作「状态a」"
+  },
+  {
+   "src": "Дата\\ доставки|Дата\\ доставки:",
+   "dst": "дата поставки",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "交货日期",
+   "note": "opus 译作「Дата доставки」；mymemory 译作「Дата доставки:」"
+  },
+  {
+   "src": "航运",
+   "dst": "发货",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "отгрузка",
+   "note": "opus 译作「航运」"
+  },
+  {
+   "src": "Доставка|Отгрузка",
+   "dst": "отгрузка",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "发货",
+   "note": "opus 译作「Доставка」；mymemory 译作「Отгрузка」"
+  },
+  {
+   "src": "交付|交货",
+   "dst": "运费",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "доставка",
+   "note": "opus 译作「交付」；mymemory 译作「交货」"
+  },
+  {
+   "src": "Грузовая\\ перевозка|Стоимость\\ перевозки",
+   "dst": "доставка",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "运费",
+   "note": "opus 译作「Грузовая перевозка」；mymemory 译作「Стоимость перевозки」"
+  },
+  {
+   "src": "无交货|无运货数|不包括派送",
+   "dst": "不含运费",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "без учёта доставки",
+   "note": "opus 译作「无交货」；opus 译作「无运货数」；mymemory 译作「不包括派送」"
+  },
+  {
+   "src": "Исключая фрахт",
+   "dst": "без учёта доставки",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "不含运费",
+   "note": "opus 译作「Исключая фрахт」"
+  },
+  {
+   "src": "包括交付|包括装运|包括派送",
+   "dst": "含运费",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "включая доставку",
+   "note": "opus 译作「包括交付」；opus 译作「包括装运」；mymemory 译作「包括派送」"
+  },
+  {
+   "src": "Включая\\ фрахт|Доставка\\ включена",
+   "dst": "включая доставку",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "含运费",
+   "note": "opus 译作「Включая фрахт」；mymemory 译作「Доставка включена」"
+  },
+  {
+   "src": "生产时间|时限",
+   "dst": "生产周期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "срок производства",
+   "note": "opus 译作「生产时间」；opus 译作「时限」"
+  },
+  {
+   "src": "Цикл\\ производства|Производственный\\ цикл",
+   "dst": "срок производства",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "生产周期",
+   "note": "opus 译作「Цикл производства」；mymemory 译作「Производственный цикл」"
+  },
+  {
+   "src": "托运|货物批量|批量商品",
+   "dst": "一批货",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "партия товара",
+   "note": "opus 译作「托运」；opus 译作「货物批量」；mymemory 译作「批量商品」"
+  },
+  {
+   "src": "Поставка\\.|Партия\\ товара",
+   "dst": "партия товара",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "一批货",
+   "note": "opus 译作「Поставка.」；mymemory 译作「Партия товара」"
+  },
+  {
+   "src": "容器",
+   "dst": "集装箱",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "контейнер",
+   "note": "mymemory 译作「容器」"
+  },
+  {
+   "src": "Контейнеры|Контейнер",
+   "dst": "контейнер",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "集装箱",
+   "note": "opus 译作「Контейнеры」；mymemory 译作「Контейнер」"
+  },
+  {
+   "src": "货仓",
+   "dst": "仓库",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "склад",
+   "note": "mymemory 译作「货仓」"
+  },
+  {
+   "src": "Хранилище|Складской",
+   "dst": "склад",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "仓库",
+   "note": "opus 译作「Хранилище」；mymemory 译作「Складской」"
+  },
+  {
+   "src": "Таможенная\\ служба|Таможня",
+   "dst": "таможня",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "海关",
+   "note": "opus 译作「Таможенная служба」；mymemory 译作「Таможня」"
+  },
+  {
+   "src": "海关申报报关报关|五、报关单",
+   "dst": "报关单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "таможенная декларация",
+   "note": "opus 译作「海关申报报关报关」；mymemory 译作「五、报关单」"
+  },
+  {
+   "src": "Таможенная\\ декларация|Таможенное\\ оформление",
+   "dst": "таможенная декларация",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "报关单",
+   "note": "opus 译作「Таможенная декларация」；mymemory 译作「Таможенное оформление」"
+  },
+  {
+   "src": "货运货物|重锤",
+   "dst": "货物",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "груз",
+   "note": "opus 译作「货运货物」；mymemory 译作「重锤」"
+  },
+  {
+   "src": "Товары",
+   "dst": "груз",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "货物",
+   "note": "opus 译作「Товары」"
+  },
+  {
+   "src": "Транспортные расходы",
+   "dst": "транспортные расходы",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "运输费用",
+   "note": "opus 译作「Транспортные расходы」"
+  },
+  {
+   "src": "样本|型型|图案|范例",
+   "dst": "样品",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "образец",
+   "note": "opus 译作「样本」；opus 译作「型型」；mymemory 译作「图案」；mymemory 译作「范例」"
+  },
+  {
+   "src": "Образцы|Образец",
+   "dst": "образец",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "样品",
+   "note": "opus 译作「Образцы」；mymemory 译作「Образец」"
+  },
+  {
+   "src": "高质量",
+   "dst": "质量",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "качество",
+   "note": "mymemory 译作「高质量」"
+  },
+  {
+   "src": "Качество|Вес",
+   "dst": "качество",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "质量",
+   "note": "opus 译作「Качество」；mymemory 译作「Вес」"
+  },
+  {
+   "src": "1)产品合格证；",
+   "dst": "质量证书",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "сертификат качества",
+   "note": "mymemory 译作「1)产品合格证；」"
+  },
+  {
+   "src": "Свидетельство\\ о\\ качестве|Сертификат\\ качества",
+   "dst": "сертификат качества",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "质量证书",
+   "note": "opus 译作「Свидетельство о качестве」；mymemory 译作「Сертификат качества」"
+  },
+  {
+   "src": "具体规格|指定|安装明细",
+   "dst": "规格",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "спецификация",
+   "note": "opus 译作「具体规格」；opus 译作「指定」；mymemory 译作「安装明细」"
+  },
+  {
+   "src": "Технические\\ требования|Параметры",
+   "dst": "спецификация",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "规格",
+   "note": "opus 译作「Технические требования」；mymemory 译作「Параметры」"
+  },
+  {
+   "src": "标准品",
+   "dst": "标准",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "стандарт",
+   "note": "mymemory 译作「标准品」"
+  },
+  {
+   "src": "Стандартные|СТАНДАРТ",
+   "dst": "стандарт",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "标准",
+   "note": "opus 译作「Стандартные」；mymemory 译作「СТАНДАРТ」"
+  },
+  {
+   "src": "担保|保障监督|收|质保",
+   "dst": "保质期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "гарантия",
+   "note": "opus 译作「担保」；opus 译作「保障监督」；mymemory 译作「收」；mymemory 译作「质保」"
+  },
+  {
+   "src": "Период\\ качества|Срок\\ годности",
+   "dst": "гарантия",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "保质期",
+   "note": "opus 译作「Период качества」；mymemory 译作「Срок годности」"
+  },
+  {
+   "src": "符合|合规性|符介",
+   "dst": "合格",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "соответствие",
+   "note": "opus 译作「符合」；opus 译作「合规性」；mymemory 译作「符介」"
+  },
+  {
+   "src": "Право\\ на\\ получение|Соотв\\.\\ треб\\.",
+   "dst": "соответствие",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "合格",
+   "note": "opus 译作「Право на получение」；mymemory 译作「Соотв. треб.」"
+  },
+  {
+   "src": "Упаковка",
+   "dst": "упаковка",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "包装",
+   "note": "opus 译作「Упаковка」"
+  },
+  {
+   "src": "容器|塔拉|皮重",
+   "dst": "外包装",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "тара",
+   "note": "opus 译作「容器」；opus 译作「塔拉」；mymemory 译作「皮重」"
+  },
+  {
+   "src": "Перепаковка|Наружная\\ упаковка",
+   "dst": "тара",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "外包装",
+   "note": "opus 译作「Перепаковка」；mymemory 译作「Наружная упаковка」"
+  },
+  {
+   "src": "标记",
+   "dst": "唛头",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "маркировка",
+   "note": "opus 译作「标记」"
+  },
+  {
+   "src": "\\-\\ Голова\\.|Маркировка",
+   "dst": "маркировка",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "唛头",
+   "note": "opus 译作「- Голова.」；mymemory 译作「Маркировка」"
+  },
+  {
+   "src": "调盘|托班",
+   "dst": "托盘",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "поддон",
+   "note": "opus 译作「调盘」；mymemory 译作「托班」"
+  },
+  {
+   "src": "Лоток|Поднос",
+   "dst": "поддон",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "托盘",
+   "note": "opus 译作「Лоток」；mymemory 译作「Поднос」"
+  },
+  {
+   "src": "方框一的“一纸|盒盒盒",
+   "dst": "纸箱",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "картонная коробка",
+   "note": "opus 译作「方框一的“一纸」；opus 译作「盒盒盒」"
+  },
+  {
+   "src": "Вставка",
+   "dst": "картонная коробка",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "纸箱",
+   "note": "opus 译作「Вставка」"
+  },
+  {
+   "src": "Число|Кол\\-во",
+   "dst": "количество",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "数量",
+   "note": "opus 译作「Число」；mymemory 译作「Кол-во」"
+  },
+  {
+   "src": "吨数|ton|流行程度：",
+   "dst": "吨",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "тонна",
+   "note": "opus 译作「吨数」；mymemory 译作「ton」；mymemory 译作「流行程度：」"
+  },
+  {
+   "src": "тонн|тонны",
+   "dst": "тонна",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "吨",
+   "note": "opus 译作「тонн」；mymemory 译作「тонны」"
+  },
+  {
+   "src": "事项|这件事情。",
+   "dst": "件",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "штука",
+   "note": "opus 译作「事项」；opus 译作「这件事情。」"
+  },
+  {
+   "src": "Приложение|ент",
+   "dst": "штука",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "件",
+   "note": "opus 译作「Приложение」；mymemory 译作「ент」"
+  },
+  {
+   "src": "设定|成套|包",
+   "dst": "套",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "комплект",
+   "note": "opus 译作「设定」；mymemory 译作「成套」；mymemory 译作「包」"
+  },
+  {
+   "src": "Выполнить|компл\\.",
+   "dst": "комплект",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "套",
+   "note": "opus 译作「Выполнить」；mymemory 译作「компл.」"
+  },
+  {
+   "src": "条约条约的条约|条约",
+   "dst": "合同",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "договор",
+   "note": "opus 译作「条约条约的条约」；opus 译作「条约」"
+  },
+  {
+   "src": "Контракты|ДОГОВОР",
+   "dst": "договор",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "合同",
+   "note": "opus 译作「Контракты」；mymemory 译作「ДОГОВОР」"
+  },
+  {
+   "src": "合同|合同金额",
+   "dst": "外贸合同",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "контракт",
+   "note": "opus 译作「合同」；mymemory 译作「合同金额」"
+  },
+  {
+   "src": "Внешнеторговые контракты",
+   "dst": "контракт",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "外贸合同",
+   "note": "opus 译作「Внешнеторговые контракты」"
+  },
+  {
+   "src": "动画|发票",
+   "dst": "商业发票",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "инвойс",
+   "note": "opus 译作「动画」；mymemory 译作「发票」"
+  },
+  {
+   "src": "Коммерческие счета-фактуры",
+   "dst": "инвойс",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "商业发票",
+   "note": "opus 译作「Коммерческие счета-фактуры」"
+  },
+  {
+   "src": "包装表|包装工作表|装箱单。",
+   "dst": "装箱单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "упаковочный лист",
+   "note": "opus 译作「包装表」；opus 译作「包装工作表」；mymemory 译作「装箱单。」"
+  },
+  {
+   "src": "Загрузка\\ списков|Упаковочный\\ лист\\.",
+   "dst": "упаковочный лист",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "装箱单",
+   "note": "opus 译作「Загрузка списков」；mymemory 译作「Упаковочный лист.」"
+  },
+  {
+   "src": "托运单|提单号",
+   "dst": "运单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "накладная",
+   "note": "opus 译作「托运单」；mymemory 译作「提单号」"
+  },
+  {
+   "src": "Транспортные\\ манифесты|Заказ",
+   "dst": "накладная",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "运单",
+   "note": "opus 译作「Транспортные манифесты」；mymemory 译作「Заказ」"
+  },
+  {
+   "src": "提单单|商",
+   "dst": "提单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "коносамент",
+   "note": "opus 译作「提单单」；opus 译作「商」"
+  },
+  {
+   "src": "Коносамент",
+   "dst": "коносамент",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "提单",
+   "note": "mymemory 译作「Коносамент」"
+  },
+  {
+   "src": "条约附件|第_______号合同附件1",
+   "dst": "合同附件",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "приложение к договору",
+   "note": "opus 译作「条约附件」；mymemory 译作「第_______号合同附件1」"
+  },
+  {
+   "src": "Прилагаемые\\ к\\ контракту|Приложение\\ к\\ Контракту:",
+   "dst": "приложение к договору",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "合同附件",
+   "note": "opus 译作「Прилагаемые к контракту」；mymemory 译作「Приложение к Контракту:」"
+  },
+  {
+   "src": "你好。你好。|您好！",
+   "dst": "您好",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Здравствуйте",
+   "note": "opus 译作「你好。你好。」；mymemory 译作「您好！」"
+  },
+  {
+   "src": "Привет\\.|Здравствуйте,",
+   "dst": "Здравствуйте",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "您好",
+   "note": "opus 译作「Привет.」；mymemory 译作「Здравствуйте,」"
+  },
+  {
+   "src": "亲爱的|主席",
+   "dst": "尊敬的",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Уважаемый",
+   "note": "opus 译作「亲爱的」；mymemory 译作「主席」"
+  },
+  {
+   "src": "Уважение\\.|Дорогие",
+   "dst": "Уважаемый",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "尊敬的",
+   "note": "opus 译作「Уважение.」；mymemory 译作「Дорогие」"
+  },
+  {
+   "src": "尊重点|您尊敬的",
+   "dst": "此致敬礼",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "С уважением",
+   "note": "opus 译作「尊重点」；mymemory 译作「您尊敬的」"
+  },
+  {
+   "src": "\\-\\ За\\ ваше\\ приветствие\\.|С\\ наилучшими\\ пожеланиями!",
+   "dst": "С уважением",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "此致敬礼",
+   "note": "opus 译作「- За ваше приветствие.」；mymemory 译作「С наилучшими пожеланиями!」"
+  },
+  {
+   "src": "确认|我们重申:",
+   "dst": "我们确认",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "подтверждаем",
+   "note": "opus 译作「确认」；mymemory 译作「我们重申:」"
+  },
+  {
+   "src": "Мы\\ уверены\\.|Мы\\ подтверждаем,\\ что:",
+   "dst": "подтверждаем",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "我们确认",
+   "note": "opus 译作「Мы уверены.」；mymemory 译作「Мы подтверждаем, что:」"
+  },
+  {
+   "src": "汇报请报告|请告知我们",
+   "dst": "请告知",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "просим сообщить",
+   "note": "opus 译作「汇报请报告」；mymemory 译作「请告知我们」"
+  },
+  {
+   "src": "Пожалуйста,\\ сообщите\\.|Сообщите\\ нам",
+   "dst": "просим сообщить",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "请告知",
+   "note": "opus 译作「Пожалуйста, сообщите.」；mymemory 译作「Сообщите нам」"
+  },
+  {
+   "src": "请求|获取|查询",
+   "dst": "询价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "запрос",
+   "note": "opus 译作「请求」；mymemory 译作「获取」；mymemory 译作「查询」"
+  },
+  {
+   "src": "Запрос котировок",
+   "dst": "запрос",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "询价",
+   "note": "opus 译作「Запрос котировок」"
+  },
+  {
+   "src": "提议|建议提案提案|句子|提交人",
+   "dst": "报价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "предложение",
+   "note": "opus 译作「提议」；opus 译作「建议提案提案」；mymemory 译作「句子」；mymemory 译作「提交人」"
+  },
+  {
+   "src": "Цена|Коммерческое\\ Предложение",
+   "dst": "предложение",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "报价",
+   "note": "opus 译作「Цена」；mymemory 译作「Коммерческое Предложение」"
+  },
+  {
+   "src": "顺序|运单",
+   "dst": "订单",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "заказ",
+   "note": "opus 译作「顺序」；mymemory 译作「运单」"
+  },
+  {
+   "src": "Порядок|Заказ:",
+   "dst": "заказ",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "订单",
+   "note": "opus 译作「Порядок」；mymemory 译作「Заказ:」"
+  },
+  {
+   "src": "电动|产材|私人物品|一，项目编号",
+   "dst": "货号",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "артикул",
+   "note": "opus 译作「电动」；opus 译作「产材」；mymemory 译作「私人物品」；mymemory 译作「一，项目编号」"
+  },
+  {
+   "src": "Груз\\.|Артикул",
+   "dst": "артикул",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "货号",
+   "note": "opus 译作「Груз.」；mymemory 译作「Артикул」"
+  },
+  {
+   "src": "货物名称",
+   "dst": "品名",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "наименование товара",
+   "note": "opus 译作「货物名称」"
+  },
+  {
+   "src": "Число\\ терминов|Наименование\\ товара",
+   "dst": "наименование товара",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "品名",
+   "note": "opus 译作「Число терминов」；mymemory 译作「Наименование товара」"
+  },
+  {
+   "src": "产品编码|产品生产编码|商品编号",
+   "dst": "商品编码",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "код товара",
+   "note": "opus 译作「产品编码」；opus 译作「产品生产编码」；mymemory 译作「商品编号」"
+  },
+  {
+   "src": "Товарный\\ код|Артикул\\ товара",
+   "dst": "код товара",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "商品编码",
+   "note": "opus 译作「Товарный код」；mymemory 译作「Артикул товара」"
+  },
+  {
+   "src": "单位|股",
+   "dst": "计量单位",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "единица измерения",
+   "note": "opus 译作「单位」；opus 译作「股」"
+  },
+  {
+   "src": "Единица\\ измерения|Ед\\.Изм\\.",
+   "dst": "единица измерения",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "计量单位",
+   "note": "opus 译作「Единица измерения」；mymemory 译作「Ед.Изм.」"
+  },
+  {
+   "src": "制造商|生产单位|生产企业",
+   "dst": "生产厂家",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "производитель",
+   "note": "opus 译作「制造商」；mymemory 译作「生产单位」；mymemory 译作「生产企业」"
+  },
+  {
+   "src": "Производство|Производитель",
+   "dst": "производитель",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "生产厂家",
+   "note": "opus 译作「Производство」；mymemory 译作「Производитель」"
+  },
+  {
+   "src": "第一",
+   "dst": "供应商",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "поставщик",
+   "note": "mymemory 译作「第一」"
+  },
+  {
+   "src": "Поставщики|Поставщик",
+   "dst": "поставщик",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "供应商",
+   "note": "opus 译作「Поставщики」；mymemory 译作「Поставщик」"
+  },
+  {
+   "src": "买|买家",
+   "dst": "买方",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "покупатель",
+   "note": "opus 译作「买」；opus 译作「买家」"
+  },
+  {
+   "src": "Покупатель",
+   "dst": "покупатель",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "买方",
+   "note": "opus 译作「Покупатель」"
+  },
+  {
+   "src": "下表显示了违法人数：|鲁比|RUB",
+   "dst": "卢布",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "руб.",
+   "note": "opus 译作「下表显示了违法人数：」；opus 译作「鲁比」；mymemory 译作「RUB」"
+  },
+  {
+   "src": "Смазка\\.|\\(руб\\.\\)",
+   "dst": "руб.",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "卢布",
+   "note": "opus 译作「Смазка.」；mymemory 译作「(руб.)」"
+  },
+  {
+   "src": "货币|货币汇率",
+   "dst": "汇率",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "курс валюты",
+   "note": "opus 译作「货币」；mymemory 译作「货币汇率」"
+  },
+  {
+   "src": "Обменный\\ курс|Курс\\ \\?\\?",
+   "dst": "курс валюты",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "汇率",
+   "note": "opus 译作「Обменный курс」；mymemory 译作「Курс ??」"
+  },
+  {
+   "src": "净加权净数",
+   "dst": "净重",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "вес нетто",
+   "note": "opus 译作「净加权净数」"
+  },
+  {
+   "src": "Вес\\ нетто|нетто",
+   "dst": "вес нетто",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "净重",
+   "note": "opus 译作「Вес нетто」；mymemory 译作「нетто」"
+  },
+  {
+   "src": "毛加权",
+   "dst": "毛重",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "вес брутто",
+   "note": "opus 译作「毛加权」"
+  },
+  {
+   "src": "Валовой\\ вес|毛重\\ Вес\\ брутто",
+   "dst": "вес брутто",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "毛重",
+   "note": "opus 译作「Валовой вес」；mymemory 译作「毛重 Вес брутто」"
+  },
+  {
+   "src": "维|维量|方面",
+   "dst": "外形尺寸",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "габариты",
+   "note": "opus 译作「维」；opus 译作「维量」；mymemory 译作「方面」"
+  },
+  {
+   "src": "Размер формы",
+   "dst": "габариты",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "外形尺寸",
+   "note": "opus 译作「Размер формы」"
+  },
+  {
+   "src": "体体体|口译",
+   "dst": "体积",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "объём",
+   "note": "opus 译作「体体体」；opus 译作「口译」"
+  },
+  {
+   "src": "Объем|Объём",
+   "dst": "объём",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "体积",
+   "note": "opus 译作「Объем」；mymemory 译作「Объём」"
+  },
+  {
+   "src": "付款表格的表格|付款表格",
+   "dst": "付款方式",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "форма оплаты",
+   "note": "opus 译作「付款表格的表格」；opus 译作「付款表格」"
+  },
+  {
+   "src": "Порядок\\ оплаты|Способ\\ оплаты",
+   "dst": "форма оплаты",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "付款方式",
+   "note": "opus 译作「Порядок оплаты」；mymemory 译作「Способ оплаты」"
+  },
+  {
+   "src": "应付款|到期日",
+   "dst": "付款期限",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "срок оплаты",
+   "note": "opus 译作「应付款」；mymemory 译作「到期日」"
+  },
+  {
+   "src": "Срок\\ платежа|Условия\\ оплаты",
+   "dst": "срок оплаты",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "付款期限",
+   "note": "opus 译作「Срок платежа」；mymemory 译作「Условия оплаты」"
+  },
+  {
+   "src": "供应条件|成交方式",
+   "dst": "交货条件",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "условия поставки",
+   "note": "opus 译作「供应条件」；mymemory 译作「成交方式」"
+  },
+  {
+   "src": "Условия\\ доставки|Сроки\\ доставки:",
+   "dst": "условия поставки",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "交货条件",
+   "note": "opus 译作「Условия доставки」；mymemory 译作「Сроки доставки:」"
+  },
+  {
+   "src": "铁路铁路运输|铁路|轨道交通",
+   "dst": "铁路运输",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "железнодорожная перевозка",
+   "note": "opus 译作「铁路铁路运输」；opus 译作「铁路」；mymemory 译作「轨道交通」"
+  },
+  {
+   "src": "Железнодорожный\\ транспорт|Транспортировка\\ по\\ железной\\ дороге",
+   "dst": "железнодорожная перевозка",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "铁路运输",
+   "note": "opus 译作「Железнодорожный транспорт」；mymemory 译作「Транспортировка по железной дороге」"
+  },
+  {
+   "src": "海上|水运|水路运输",
+   "dst": "海运",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "морская перевозка",
+   "note": "opus 译作「海上」；opus 译作「水运」；mymemory 译作「水路运输」"
+  },
+  {
+   "src": "Морской транспорт",
+   "dst": "морская перевозка",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "海运",
+   "note": "opus 译作「Морской транспорт」"
+  },
+  {
+   "src": "空中业务",
+   "dst": "空运",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "авиаперевозка",
+   "note": "opus 译作「空中业务」"
+  },
+  {
+   "src": "Воздушный транспорт",
+   "dst": "авиаперевозка",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "空运",
+   "note": "opus 译作「Воздушный транспорт」"
+  },
+  {
+   "src": "离岸|FOB",
+   "dst": "离岸价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "ФОБ",
+   "note": "opus 译作「离岸」；mymemory 译作「FOB」"
+  },
+  {
+   "src": "Цена\\ FOB|FOB",
+   "dst": "ФОБ",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "离岸价",
+   "note": "opus 译作「Цена FOB」；mymemory 译作「FOB」"
+  },
+  {
+   "src": "CIF\\ 到|\\(到岸价格\\)",
+   "dst": "到岸价",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "СИФ",
+   "note": "opus 译作「CIF 到」；mymemory 译作「(到岸价格)」"
+  },
+  {
+   "src": "ЦРУ\\.|CIF",
+   "dst": "СИФ",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "到岸价",
+   "note": "opus 译作「ЦРУ.」；mymemory 译作「CIF」"
+  },
+  {
+   "src": "Счета\\-фактуры|Инвойс",
+   "dst": "счёт-фактура",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "发票",
+   "note": "opus 译作「Счета-фактуры」；mymemory 译作「Инвойс」"
+  },
+  {
+   "src": "符合符合要求证明书|符合要求证明",
+   "dst": "合格证",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "сертификат соответствия",
+   "note": "opus 译作「符合符合要求证明书」；opus 译作「符合要求证明」"
+  },
+  {
+   "src": "Аккредитация|Сертификат\\ соответствия",
+   "dst": "сертификат соответствия",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "合格证",
+   "note": "opus 译作「Аккредитация」；mymemory 译作「Сертификат соответствия」"
+  },
+  {
+   "src": "汤加|FEACN",
+   "dst": "海关编码",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "ТН ВЭД",
+   "note": "opus 译作「汤加」；mymemory 译作「FEACN」"
+  },
+  {
+   "src": "Таможенный\\ кодекс|Таможенный\\ код",
+   "dst": "ТН ВЭД",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "海关编码",
+   "note": "opus 译作「Таможенный кодекс」；mymemory 译作「Таможенный код」"
+  },
+  {
+   "src": "索偿|额外费用",
+   "dst": "索赔",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "претензия",
+   "note": "opus 译作「索偿」；mymemory 译作「额外费用」"
+  },
+  {
+   "src": "Претензия|претензии",
+   "dst": "претензия",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "索赔",
+   "note": "opus 译作「Претензия」；mymemory 译作「претензии」"
+  },
+  {
+   "src": "好",
+   "dst": "罚款",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "штраф",
+   "note": "opus 译作「好」"
+  },
+  {
+   "src": "Хорошо\\.|Штраф",
+   "dst": "штраф",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "罚款",
+   "note": "opus 译作「Хорошо.」；mymemory 译作「Штраф」"
+  },
+  {
+   "src": "不可抗力因素",
+   "dst": "不可抗力",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "форс-мажор",
+   "note": "mymemory 译作「不可抗力因素」"
+  },
+  {
+   "src": "ОБСТОЯТЕЛЬСТВА НЕПРЕОДОЛИМОЙ СИЛЫ",
+   "dst": "форс-мажор",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "不可抗力",
+   "note": "mymemory 译作「ОБСТОЯТЕЛЬСТВА НЕПРЕОДОЛИМОЙ СИЛЫ」"
+  },
+  {
+   "src": "保证期|保修期限",
+   "dst": "保修期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "гарантийный срок",
+   "note": "opus 译作「保证期」；mymemory 译作「保修期限」"
+  },
+  {
+   "src": "гарантийный\\ период|Срок\\ гарантии",
+   "dst": "гарантийный срок",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "保修期",
+   "note": "opus 译作「гарантийный период」；mymemory 译作「Срок гарантии」"
+  },
+  {
+   "src": "服装|工作服|套头衫",
+   "dst": "劳保服",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "спецодежда",
+   "note": "opus 译作「服装」；mymemory 译作「工作服」；mymemory 译作「套头衫」"
+  },
+  {
+   "src": "\\-\\ Я\\ коп\\.|Одежда\\ для\\ страхования\\ труда",
+   "dst": "спецодежда",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "劳保服",
+   "note": "opus 译作「- Я коп.」；mymemory 译作「Одежда для страхования труда」"
+  },
+  {
+   "src": "Перчатки\\.|Перчатки",
+   "dst": "перчатки",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "手套",
+   "note": "opus 译作「Перчатки.」；mymemory 译作「Перчатки」"
+  },
+  {
+   "src": "Mосква",
+   "dst": "Москва",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "莫斯科",
+   "note": "mymemory 译作「Mосква」"
+  },
+  {
+   "src": "г. Санкт-Петербург",
+   "dst": "Санкт-Петербург",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "圣彼得堡",
+   "note": "mymemory 译作「г. Санкт-Петербург」"
+  },
+  {
+   "src": "新闻社|(?i:n[aeiouy]*[vw][aeiouy]*s[aeiouy]*b[aeiouy]*rsk)",
+   "dst": "新西伯利亚",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Новосибирск",
+   "note": "opus 译作「新闻社」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Новая\\ Сибирь|Novosibirsk",
+   "dst": "Новосибирск",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "新西伯利亚",
+   "note": "opus 译作「Новая Сибирь」；mymemory 译作「Novosibirsk」"
+  },
+  {
+   "src": "凯瑟琳堡|Екатеринбург/叶卡捷琳堡|(?i:[aeiouy]*k[aeiouy]*t[aeiouy]*r[aeiouy]*nb[aeiouy]*rg)",
+   "dst": "叶卡捷琳堡",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Екатеринбург",
+   "note": "opus 译作「凯瑟琳堡」；mymemory 译作「Екатеринбург/叶卡捷琳堡」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Екатеринбург.",
+   "dst": "Екатеринбург",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "叶卡捷琳堡",
+   "note": "opus 译作「Екатеринбург.」"
+  },
+  {
+   "src": "下新高罗德|(?i:n[aeiouy]*zhn[aeiouy]*[aeiouy]*[\\s\\-]*n[aeiouy]*[vw]g[aeiouy]*r[aeiouy]*d)",
+   "dst": "下诺夫哥罗德",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Нижний Новгород",
+   "note": "opus 译作「下新高罗德」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "- Новгород.",
+   "dst": "Нижний Новгород",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "下诺夫哥罗德",
+   "note": "opus 译作「- Новгород.」"
+  },
+  {
+   "src": "Казан\\.|Кха\\ Сон",
+   "dst": "Казань",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "喀山",
+   "note": "opus 译作「Казан.」；mymemory 译作「Кха Сон」"
+  },
+  {
+   "src": "切利亚宾斯克|车里雅宾斯科|(?i:ch[aeiouy]*l[aeiouy]*[aeiouy]*b[aeiouy]*nsk)",
+   "dst": "车里雅宾斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Челябинск",
+   "note": "opus 译作「切利亚宾斯克」；mymemory 译作「车里雅宾斯科」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Шейя Бинск.",
+   "dst": "Челябинск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "车里雅宾斯克",
+   "note": "opus 译作「Шейя Бинск.」"
+  },
+  {
+   "src": "乌木|Омск/鄂木斯克|(?i:[aeiouy]*msk)",
+   "dst": "鄂木斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Омск",
+   "note": "opus 译作「乌木」；mymemory 译作「Омск/鄂木斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Омск!",
+   "dst": "Омск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "鄂木斯克",
+   "note": "opus 译作「Омск!」"
+  },
+  {
+   "src": "萨马拉acolora\\.\\ kgm|Самара/萨马拉|(?i:s[aeiouy]*m[aeiouy]*r[aeiouy]*)",
+   "dst": "萨马拉",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Самара",
+   "note": "opus 译作「萨马拉acolora. kgm」；mymemory 译作「Самара/萨马拉」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Самара.",
+   "dst": "Самара",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "萨马拉",
+   "note": "opus 译作「Самара.」"
+  },
+  {
+   "src": "罗斯托夫·唐|(?i:r[aeiouy]*st[aeiouy]*[vw][\\s\\-]*n[aeiouy]*[\\s\\-]*d[aeiouy]*n[aeiouy]*)",
+   "dst": "顿河畔罗斯托夫",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Ростов-на-Дону",
+   "note": "opus 译作「罗斯托夫·唐」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Ростов, на реке Дон.",
+   "dst": "Ростов-на-Дону",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "顿河畔罗斯托夫",
+   "note": "opus 译作「Ростов, на реке Дон.」"
+  },
+  {
+   "src": "Уфа.",
+   "dst": "Уфа",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "乌法",
+   "note": "opus 译作「Уфа.」"
+  },
+  {
+   "src": "Красноярск\\.|г\\.\\ Красноярск",
+   "dst": "Красноярск",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "克拉斯诺亚尔斯克",
+   "note": "opus 译作「Красноярск.」；mymemory 译作「г. Красноярск」"
+  },
+  {
+   "src": "人|(?i:[vw][aeiouy]*r[aeiouy]*n[aeiouy]*zh)",
+   "dst": "沃罗涅日",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Воронеж",
+   "note": "opus 译作「人」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Воронеж\\.|г\\.\\ Воронеж",
+   "dst": "Воронеж",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "沃罗涅日",
+   "note": "opus 译作「Воронеж.」；mymemory 译作「г. Воронеж」"
+  },
+  {
+   "src": "双月|Пермь/彼尔姆|(?i:p[aeiouy]*rm)",
+   "dst": "彼尔姆",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Пермь",
+   "note": "opus 译作「双月」；mymemory 译作「Пермь/彼尔姆」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Перм.",
+   "dst": "Пермь",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "彼尔姆",
+   "note": "opus 译作「Перм.」"
+  },
+  {
+   "src": "伏尔格格|\\[伏尔加格勒\\]|(?i:[vw][aeiouy]*lg[aeiouy]*gr[aeiouy]*d)",
+   "dst": "伏尔加格勒",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Волгоград",
+   "note": "opus 译作「伏尔格格」；mymemory 译作「[伏尔加格勒]」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Волгаград\\.|\\[Волгоград\\]",
+   "dst": "Волгоград",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "伏尔加格勒",
+   "note": "opus 译作「Волгаград.」；mymemory 译作「[Волгоград]」"
+  },
+  {
+   "src": "瑞Dard|Краснодар/克拉斯诺达尔|(?i:kr[aeiouy]*sn[aeiouy]*d[aeiouy]*r)",
+   "dst": "克拉斯诺达尔",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Краснодар",
+   "note": "opus 译作「瑞Dard」；mymemory 译作「Краснодар/克拉斯诺达尔」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Краснодар.",
+   "dst": "Краснодар",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "克拉斯诺达尔",
+   "note": "opus 译作「Краснодар.」"
+  },
+  {
+   "src": "Саратов\\.|г\\.\\ Саратов",
+   "dst": "Саратов",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "萨拉托夫",
+   "note": "opus 译作「Саратов.」；mymemory 译作「г. Саратов」"
+  },
+  {
+   "src": "暗暗|秋明州|(?i:t[aeiouy]*[aeiouy]*m[aeiouy]*n)",
+   "dst": "秋明",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Тюмень",
+   "note": "opus 译作「暗暗」；mymemory 译作「秋明州」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Осень.",
+   "dst": "Тюмень",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "秋明",
+   "note": "opus 译作「Осень.」"
+  },
+  {
+   "src": "托利亚蒂|Тольятти/陶里亚蒂|(?i:t[aeiouy]*l[aeiouy]*[aeiouy]*tt[aeiouy]*)",
+   "dst": "陶里亚蒂",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Тольятти",
+   "note": "opus 译作「托利亚蒂」；mymemory 译作「Тольятти/陶里亚蒂」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Торрити.",
+   "dst": "Тольятти",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "陶里亚蒂",
+   "note": "opus 译作「Торрити.」"
+  },
+  {
+   "src": "伊日夫斯克|(?i:[aeiouy]*zh[aeiouy]*[vw]sk)",
+   "dst": "伊热夫斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Ижевск",
+   "note": "opus 译作「伊日夫斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Иревск.",
+   "dst": "Ижевск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "伊热夫斯克",
+   "note": "opus 译作「Иревск.」"
+  },
+  {
+   "src": "白|巴瑙尔|(?i:b[aeiouy]*rn[aeiouy]*[aeiouy]*l)",
+   "dst": "巴尔瑙尔",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Барнаул",
+   "note": "opus 译作「白」；mymemory 译作「巴瑙尔」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Барнаур.",
+   "dst": "Барнаул",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "巴尔瑙尔",
+   "note": "opus 译作「Барнаур.」"
+  },
+  {
+   "src": "Уляновский",
+   "dst": "Ульяновск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "乌里扬诺夫斯克",
+   "note": "opus 译作「Уляновский」"
+  },
+  {
+   "src": "Иркутск/伊尔库茨克|(?i:[aeiouy]*rk[aeiouy]*tsk)",
+   "dst": "伊尔库茨克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Иркутск",
+   "note": "mymemory 译作「Иркутск/伊尔库茨克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Хабаровск/哈巴罗夫斯克|(?i:kh[aeiouy]*b[aeiouy]*r[aeiouy]*[vw]sk)",
+   "dst": "哈巴罗夫斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Хабаровск",
+   "note": "mymemory 译作「Хабаровск/哈巴罗夫斯克」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Хабаровск.",
+   "dst": "Хабаровск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "哈巴罗夫斯克",
+   "note": "opus 译作「Хабаровск.」"
+  },
+  {
+   "src": "海参松|(?i:[vw]l[aeiouy]*d[aeiouy]*[vw][aeiouy]*st[aeiouy]*k)",
+   "dst": "符拉迪沃斯托克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Владивосток",
+   "note": "opus 译作「海参松」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Владивосток.",
+   "dst": "Владивосток",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "符拉迪沃斯托克",
+   "note": "opus 译作「Владивосток.」"
+  },
+  {
+   "src": "贾罗斯拉夫|(?i:[aeiouy]*[aeiouy]*r[aeiouy]*sl[aeiouy]*[vw]l)",
+   "dst": "雅罗斯拉夫尔",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Ярославль",
+   "note": "opus 译作「贾罗斯拉夫」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Ярославл.",
+   "dst": "Ярославль",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "雅罗斯拉夫尔",
+   "note": "opus 译作「Ярославл.」"
+  },
+  {
+   "src": "马哈卡拉|(?i:m[aeiouy]*kh[aeiouy]*chk[aeiouy]*l[aeiouy]*)",
+   "dst": "马哈奇卡拉",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Махачкала",
+   "note": "opus 译作「马哈卡拉」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Махачи Кара.",
+   "dst": "Махачкала",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "马哈奇卡拉",
+   "note": "opus 译作「Махачи Кара.」"
+  },
+  {
+   "src": "托木|(?i:t[aeiouy]*msk)",
+   "dst": "托木斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Томск",
+   "note": "opus 译作「托木」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Томск.",
+   "dst": "Томск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "托木斯克",
+   "note": "opus 译作「Томск.」"
+  },
+  {
+   "src": "新俄文新俄文Name|(?i:n[aeiouy]*[vw][aeiouy]*r[aeiouy]*ss[aeiouy]*[aeiouy]*sk)",
+   "dst": "新罗西斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Новороссийск",
+   "note": "opus 译作「新俄文新俄文Name」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "Новый Розиск.",
+   "dst": "Новороссийск",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "新罗西斯克",
+   "note": "opus 译作「Новый Розиск.」"
+  },
+  {
+   "src": "加内宁格|莫斯科地区\\]|(?i:k[aeiouy]*l[aeiouy]*n[aeiouy]*ngr[aeiouy]*d)",
+   "dst": "加里宁格勒",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Калининград",
+   "note": "opus 译作「加内宁格」；mymemory 译作「莫斯科地区]」；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "г. Калининград",
+   "dst": "Калининград",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "加里宁格勒",
+   "note": "mymemory 译作「г. Калининград」"
+  },
+  {
+   "src": "Привет\\.|привет",
+   "dst": "Здравствуйте",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "你好",
+   "note": "opus 译作「Привет.」；mymemory 译作「привет」"
+  },
+  {
+   "src": "Ты\\.|\\{\\}\\ \\(Вы\\)",
+   "dst": "Вы",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "您",
+   "note": "opus 译作「Ты.」；mymemory 译作「{} (Вы)」"
+  },
+  {
+   "src": "Желаю вам удачи.",
+   "dst": "С уважением",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "顺祝商祺",
+   "note": "opus 译作「Желаю вам удачи.」"
+  },
+  {
+   "src": "Спасибо, что спросили.",
+   "dst": "Благодарим за запрос",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "感谢您的询价",
+   "note": "opus 译作「Спасибо, что спросили.」"
+  },
+  {
+   "src": "Спасибо за письмо.",
+   "dst": "Благодарим за письмо",
+   "mode": "literal",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "感谢您的来信",
+   "note": "opus 译作「Спасибо за письмо.」"
+  },
+  {
+   "src": "Я\\ с\\ нетерпением\\ жду\\ возможности\\ работать\\ с\\ вами\\.|Будем\\ рады\\ сотрудничеству\\ с\\ вами",
+   "dst": "Надеемся на сотрудничество",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "期待与您合作",
+   "note": "opus 译作「Я с нетерпением жду возможности работать с вами.」；mymemory 译作「Будем рады сотрудничеству с вами」"
+  },
+  {
+   "src": "Я\\ жду\\ вашего\\ ответа\\.|С\\ нетерпением\\ ждем\\ вашего\\ ответа",
+   "dst": "Ждём вашего ответа",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "期待您的回复",
+   "note": "opus 译作「Я жду вашего ответа.」；mymemory 译作「С нетерпением ждем вашего ответа」"
+  },
+  {
+   "src": "Пожалуйста,\\ подтвердите\\.|Пожалуйста,\\ подтвердите",
+   "dst": "Просим подтвердить",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "请确认",
+   "note": "opus 译作「Пожалуйста, подтвердите.」；mymemory 译作「Пожалуйста, подтвердите」"
+  },
+  {
+   "src": "Потрясающе|Ткани",
+   "dst": "ткань",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "面料",
+   "note": "opus 译作「Потрясающе」；mymemory 译作「Ткани」"
+  },
+  {
+   "src": "Период\\ поставки|Срок\\ поставки",
+   "dst": "срок поставки",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "zh->ru"
+   ],
+   "when": "交货期",
+   "note": "opus 译作「Период поставки」；mymemory 译作「Срок поставки」"
+  },
+  {
+   "src": "红宝石",
+   "dst": "卢布",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "руб.",
+   "note": "上下文里的误译（原术语 руб.；供应商报价单里实际见到的）"
+  },
+  {
+   "src": "产材",
+   "dst": "货号",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "артикул",
+   "note": "上下文里的误译（原术语 артикул；供应商报价单里实际见到的）"
+  },
+  {
+   "src": "《全球货物和科技总协定》",
+   "dst": "ГОСТ（俄罗斯国家标准）",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "ГОСТ",
+   "note": "上下文里的误译（原术语 ГОСТ；实测 20 句贸易俄文时读出来的）"
+  },
+  {
+   "src": "拖延",
+   "dst": "延期",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "отсрочка",
+   "note": "上下文里的误译（原术语 отсрочка；实测 20 句贸易俄文时读出来的）"
+  },
+  {
+   "src": "(?i:m[aeiouy]*sk[vw][aeiouy]*|moscow)",
+   "dst": "莫斯科",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Москва",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:s[aeiouy]*nkt[\\s\\-]*p[aeiouy]*t[aeiouy]*rb[aeiouy]*rg|saint[\\s\\-]*petersburg|st\\.?[\\s\\-]*petersburg)",
+   "dst": "圣彼得堡",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Санкт-Петербург",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:k[aeiouy]*z[aeiouy]*n)",
+   "dst": "喀山",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Казань",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:[aeiouy]*f[aeiouy]*)",
+   "dst": "乌法",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Уфа",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:kr[aeiouy]*sn[aeiouy]*[aeiouy]*[aeiouy]*rsk)",
+   "dst": "克拉斯诺亚尔斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Красноярск",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:s[aeiouy]*r[aeiouy]*t[aeiouy]*[vw])",
+   "dst": "萨拉托夫",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Саратов",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "(?i:[aeiouy]*l[aeiouy]*[aeiouy]*n[aeiouy]*[vw]sk)",
+   "dst": "乌里扬诺夫斯克",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "Ульяновск",
+   "note": "地名：单独测的时候引擎可能译对了，但句子里会写成拉丁字母；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配；句子里引擎会把它写成拉丁字母，补一条元音宽松的匹配"
+  },
+  {
+   "src": "贷款额|贷款额度|贷款金额",
+   "dst": "预付款",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "предоплат",
+   "note": "opus 把 предоплата（预付款）译成「贷款额」"
+  },
+  {
+   "src": "Nds|NDS|Ндс|ндс",
+   "dst": "增值税",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "ндс",
+   "note": "НДС 缩写原样漏出来，模型不认识"
+  },
+  {
+   "src": "交付时间|交货时间|供货时间",
+   "dst": "交货期",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "срок поставки",
+   "note": "срок поставки 在合同里就是交货期"
+  },
+  {
+   "src": "支付不停|支付不停止",
+   "dst": "支付违约金",
+   "mode": "regex",
+   "side": "target",
+   "pairs": [
+    "ru->zh"
+   ],
+   "when": "неустойк",
+   "note": "неустойка 是违约金；模型把它拆成「不停」"
+  }
+ ]
 }
