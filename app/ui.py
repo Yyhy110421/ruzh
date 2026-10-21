@@ -124,7 +124,7 @@ class App(tk.Tk):
         self.configure(bg=BG)
         # Tall enough that the screen tab's content fits without squeezing the
         # translation box; grid shrinks the weighted row first when space runs out.
-        self.minsize(760, 660)
+        self.minsize(760, 760)
         self.geometry("860x700")
         self._apply_window_icon()
 
@@ -302,7 +302,12 @@ class App(tk.Tk):
         # grid again: the translation box is the thing worth the spare room, so it gets
         # the weight instead of being squeezed by whatever is packed around it.
         tab.columnconfigure(0, weight=1)
-        tab.rowconfigure(7, weight=1)
+        # The translation row takes the slack, but it must never be squeezed away: at the
+        # window's minimum height the grid shrank it to a single line, so a four-line
+        # translation looked like one line and the rest was unreachable. A minimum height
+        # here, and a taller window minimum, keeps the whole answer visible.
+        tab.rowconfigure(7, weight=1, minsize=128)
+        tab.rowconfigure(5, weight=0, minsize=58)
         row = 0
 
         self._language_row(tab).grid(row=row, column=0, sticky="ew", pady=(0, 14))
@@ -1232,6 +1237,12 @@ class App(tk.Tk):
             if event.source:
                 self._set_text(self.source_text, event.source)
             if event.changed:
+                # Recorded because a GUI session used to leave nothing behind: the on-screen
+                # translation is the only evidence, and "why does it say that" was unanswerable
+                # afterwards without the source text, the output and the timings side by side.
+                self.log(f"[译文] 识别 {event.ocr_ms:.0f} ms 翻译 {event.translate_ms:.0f} ms")
+                self.log(f"       原文: {event.source[:200]!r}")
+                self.log(f"       译文: {event.translation[:200]!r}")
                 self._set_text(self.result_text, event.translation)
                 if self.cfg.overlay.enabled:
                     self.overlay.show_text(event.source, event.translation)
@@ -1262,10 +1273,48 @@ class App(tk.Tk):
 
     # ------------------------------------------------------------------- log
     def log(self, message: str) -> None:
-        """Append to the log view; it lives in the settings window, if open."""
+        """Record a line, to the settings window when it is open and always to logs/app.log.
+
+        The view used to be the only destination, so closing that window threw the record
+        away - a GUI session left nothing behind to look at afterwards, which is why an
+        unexplained on-screen result could not be diagnosed at all. The file is capped and
+        rotated so it cannot grow without limit.
+        """
         window = getattr(self, "_settings_window", None)
-        if window is not None and window.winfo_exists():
-            window.append_log(message)
+        for line in str(message).splitlines() or [""]:
+            self._log_to_window(line)
+        try:
+            self._log_to_file(str(message))
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _log_to_window(self, line: str) -> None:
+        window = getattr(self, "_settings_window", None)
+        try:
+            if window is not None and window.winfo_exists():
+                window.append_log(line)
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _log_to_file(self, message: str) -> None:
+        import time as _time
+        from . import config as _config
+
+        _config.LOG_DIR.mkdir(parents=True, exist_ok=True)
+        path = _config.LOG_DIR / "app.log"
+        # Rotate at a size a support conversation can still be shown in full.
+        if path.exists() and path.stat().st_size > 2 * 1024 * 1024:
+            backup = _config.LOG_DIR / "app.log.1"
+            try:
+                if backup.exists():
+                    backup.unlink()
+                path.rename(backup)
+            except Exception:  # noqa: BLE001
+                pass
+        stamp = _time.strftime("%Y-%m-%d %H:%M:%S")
+        with open(path, "a", encoding="utf-8", errors="replace") as handle:
+            for line in str(message).splitlines() or [""]:
+                handle.write(f"{stamp}  {line}\n")
 
     # -------------------------------------------------------------- downloads
     def download_models(self) -> None:
