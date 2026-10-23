@@ -96,6 +96,18 @@ def read_paragraphs(path: str | Path) -> list[str]:
     return [_paragraph_text(paragraph) for paragraph in root.iter(_W_P)]
 
 
+def _style_of(element) -> str:
+    """The paragraph's style id, read from the XML (these are lxml elements, not proxies)."""
+    ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    properties = element.find(f"{ns}pPr")
+    if properties is None:
+        return ""
+    style = properties.find(f"{ns}pStyle")
+    if style is None:
+        return ""
+    return style.get(f"{ns}val") or ""
+
+
 def translate_docx(
     cfg: AppConfig,
     models_root: str,
@@ -140,7 +152,11 @@ def translate_docx(
         if groups and texts[groups[-1][-1]].strip():
             last = groups[-1][-1]
             same_parent = parents.get(id(paragraphs[last])) is parents.get(id(paragraphs[index]))
-            joined = same_parent and continues_previous(texts[last], text)
+            # A heading is not the continuation of the paragraph above it. Without this a
+            # "ДОГОВОР ПОСТАВКИ" heading was merged into the body sentence that followed it,
+            # which both lost the heading's own translation and overwrote its style run.
+            same_style = _style_of(paragraphs[last]) == _style_of(paragraphs[index])
+            joined = same_parent and same_style and continues_previous(texts[last], text)
         if joined:
             groups[-1].append(index)
         else:
