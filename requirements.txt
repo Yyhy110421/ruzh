@@ -30,3 +30,7 @@ sacremoses>=0.1
 
 # --- ships the MSVC runtime DLLs used by the native wheels above ---
 msvc-runtime
+
+# --- Word / Excel: 客户版必须装，否则「翻译文档」直接报错 ---
+python-docx>=1.1
+openpyxl>=3.1

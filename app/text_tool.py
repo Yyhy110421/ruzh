@@ -31,7 +31,7 @@ from .glossary import Glossary, GlossaryError, load_with_builtin
 from . import numbers
 from .redact import Redactor
 from .segment import join_units, rebuild_paragraphs, split_sentences
-from .translator import TranslateError
+from .translator import TranslateError, finalise
 
 
 @dataclass
@@ -157,7 +157,11 @@ class Translator:
         # Numbers out of the model's reach entirely. The English hop does not treat a long
         # digit run as a number - "600000" and "600 000" both come back as "600,0" - and a
         # quotation whose amounts are wrong is worse than no quotation. See app/numbers.py.
-        prepared, number_map = numbers.mask(prepared)
+        # Same rule as the screen path: an instruction model reads digits itself and gets
+        # confused by placeholders. Measured on a table cell, "[N1] календарных дней" came
+        # back as "日历日" - the number silently gone.
+        masks = getattr(self.route, "masks_numbers", True)
+        prepared, number_map = numbers.mask(prepared) if masks else (prepared, {})
         if number_map:
             self.numbers_protected += len(number_map)
         # Privacy masking is the last step before the text leaves, so it sees whatever the
@@ -180,6 +184,11 @@ class Translator:
         if self.glossary and translated:
             translated = self.glossary.apply_target(translated, self.src_lang,
                                                     self.tgt_lang, source=unit)
+        # Last pass, shared with the screen path. Without it Word/Excel/PDF/image output
+        # kept "预付款款", "百分比" and "人民币" while the screen path had them fixed -
+        # the same model giving different quality depending on which button was pressed.
+        if translated:
+            translated = finalise(translated, unit)
         return translated or unit
 
 

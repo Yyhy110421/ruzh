@@ -75,6 +75,14 @@ _OUTPUT_REPAIRS: tuple[tuple[str, str], ...] = (
     # "соответствовать требованиям" -> "应合格…的要求": 符合 is the verb it wants.
     ("应合格", "应符合"),
     ("须合格", "须符合"),
+    # "30 процентов" -> "30 百分比": Chinese writes the sign, not the word.
+    # The replacement must be a raw string: "\1" in a normal string is an octal escape,
+    # which silently writes a control character instead of the captured digits.
+    (r"(\d+)\s*百分比", r"\1%"),
+    (r"百分之(\d+)", r"\1%"),
+    # "600 000" -> "600,000". The Russian source separates thousands with a space; a comma
+    # followed by exactly three digits is the model reformatting it, not a decimal.
+    (r"(\d),(\d{3})(?!\d)", r"\1 \2"),
 )
 
 
@@ -82,9 +90,42 @@ def repair_output(text: str) -> str:
     """Fix the specific garbling the offline models produce, leaving everything else alone."""
     if not text:
         return text
-    for pattern, replacement in _OUTPUT_REPAIRS:
-        text = re.sub(pattern, replacement, text)
+    # Two passes so a chained thousands separator ("1,234,567") is fully normalised.
+    # Every rule is idempotent, so a second pass cannot double-apply anything.
+    for _ in range(2):
+        for pattern, replacement in _OUTPUT_REPAIRS:
+            text = re.sub(pattern, replacement, text)
     return text
+
+
+#: Money words the models get wrong. Gated on the SOURCE containing the Russian term, so a
+#: sentence that really is about yuan is left alone.
+_CURRENCY = (
+    ("\u0440\u0443\u0431\u043b", ("\u4eba\u6c11\u5e01", "\u5143"), "\u5362\u5e03"),
+)
+
+
+def fix_currency(text: str, source: str) -> str:
+    """Force the Russian rouble into 卢布 when the source is about roubles."""
+    if not text or not source:
+        return text
+    low = source.lower()
+    for marker, wrong_words, right in _CURRENCY:
+        if marker not in low:
+            continue
+        for wrong in wrong_words:
+            text = text.replace(wrong, right)
+    return text.replace("\u5362\u5e03\u5e03", "\u5362\u5e03")
+
+
+def finalise(piece: str, source: str) -> str:
+    """The last pass every translated string goes through, on every surface.
+
+    Screen, Word, Excel, PDF and image translation all end here. They used to diverge:
+    the screen path repaired "预付款款" and forced 卢布, the document path did neither, so
+    the same model produced different quality depending on which button was pressed.
+    """
+    return fix_currency(repair_output(piece), source)
 
 
 def collapse_repeats(text: str) -> str:
