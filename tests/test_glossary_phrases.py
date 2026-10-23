@@ -13,6 +13,7 @@ the engine already gets right is listed too, so that a rule which breaks it is c
 
 Run: python tests/test_glossary_phrases.py
 """
+import re
 import sys
 import traceback
 from pathlib import Path
@@ -115,7 +116,10 @@ def main() -> int:
     for chinese, forbidden in FORBIDDEN:
         raw = route.translate(chinese).strip()
         after = glossary.apply_target(raw, "zh", "ru", source=chinese)
-        bad = forbidden.lower() in after.lower()
+        # Whole-word match: "Кот" is not present in "котировок" just because the
+        # letters happen to be there. A substring check reports that as a failure.
+        bound = r"(?<![\wЀ-ӿ])" + re.escape(forbidden) + r"(?![\wЀ-ӿ])"
+        bad = re.search(bound, after, re.IGNORECASE) is not None
         check(not bad, f"「{chinese}」的结果里没有 {forbidden!r}",
               f"实际：{after}" if bad else f"→ {after}")
     print()
