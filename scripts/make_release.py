@@ -26,7 +26,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 #: Copied from this folder.
-DIRECTORIES = ["app", "assets", "engines_custom", "models"]
+#: "llm" is the local model runtime: llama-server.exe plus a Qwen2.5-1.5B GGUF, about
+#: 1.1 GB. It is what makes the offline translation usable ("预付款" instead of
+#: "预付款款"), so the customer folder is useless without it.
+DIRECTORIES = ["app", "assets", "engines_custom", "models", "llm"]
 
 #: The bundled interpreter is a staging artifact, not a source file: a full CPython install
 #: (about 610 MB, 11k files) with the app's dependencies beside it. It is deliberately not

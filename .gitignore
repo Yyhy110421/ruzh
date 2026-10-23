@@ -64,3 +64,4 @@ tests/douyin-*.cjs
 tests/hindsight-acceptance.mjs
 tests/*.err
 _llm/
+llm/
