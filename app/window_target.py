@@ -382,8 +382,44 @@ def target_window_label(cfg) -> str:
         return ""
     handle = find_window(cfg.target_window_title, cfg.target_window_process)
     if not handle:
+        # A minimized window cannot be captured, so it is filtered out of the list above -
+        # but telling the user "not found" sends them off to re-pick a window that is
+        # right there on the taskbar. Say what actually has to happen.
+        if _has_minimized(cfg.target_window_title, cfg.target_window_process):
+            return f"窗口「{cfg.target_window_title}」已最小化，还原后自动跟随"
         return f"找不到窗口「{cfg.target_window_title}」"
     for info in list_windows():
         if info.handle == handle:
             return info.label
     return cfg.target_window_title
+
+
+def _has_minimized(want_title: str, want_process: str = "") -> bool:
+    """True when a window matching the title exists but is minimized.
+
+    list_windows() skips minimized windows because they cannot be captured, which is the
+    right behaviour for following and the wrong one for explaining what to do about it.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    if not want_title:
+        return False
+    user32 = ctypes.windll.user32
+    want = want_title.lower()
+    found: list[int] = []
+
+    def visit(hwnd, _lp):
+        if not user32.IsIconic(hwnd):
+            return True
+        length = user32.GetWindowTextLengthW(hwnd)
+        if length:
+            buffer = ctypes.create_unicode_buffer(length + 1)
+            user32.GetWindowTextW(hwnd, buffer, length + 1)
+            if want in buffer.value.lower():
+                found.append(int(hwnd or 0))
+        return True
+
+    callback = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)(visit)
+    user32.EnumWindows(callback, 0)
+    return bool(found)

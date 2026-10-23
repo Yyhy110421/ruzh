@@ -718,8 +718,11 @@ class Pipeline(threading.Thread):
             # text-tab paths were masking. That is the one claim the product makes about
             # accuracy, so it belongs on every path.
             from . import numbers as numbers_mod
+            # An instruction model reads digits correctly by itself and gets confused by
+            # placeholders, so a route may decline the masking the Marian/NLLB routes need.
+            masks = getattr(translator, "masks_numbers", True)
             try:
-                masked, tokens = numbers_mod.mask(src)
+                masked, tokens = numbers_mod.mask(src) if masks else (src, {})
             except Exception:  # noqa: BLE001
                 masked, tokens = src, {}
             piece = _strip_entities(repair_output(translator.translate(masked)))
