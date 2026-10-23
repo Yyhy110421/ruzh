@@ -86,6 +86,27 @@ def _strip_entities(text: str) -> str:
     return re.sub(r"\s{2,}", " ", text).strip()
 
 
+#: Money words the models get wrong. Gated on the SOURCE containing the Russian term, so a
+#: sentence that really is about yuan is left alone.
+_CURRENCY_FIX = (
+    ("\u0440\u0443\u0431\u043b", ("\u4eba\u6c11\u5e01", "\u5143"), "\u5362\u5e03"),
+)
+
+
+def _fix_currency(text: str, source: str) -> str:
+    """Force the Russian rouble into 卢布 when the source is about roubles."""
+    if not text or not source:
+        return text
+    low = source.lower()
+    for marker, wrong_words, right in _CURRENCY_FIX:
+        if marker not in low:
+            continue
+        for wrong in wrong_words:
+            if wrong in text:
+                text = text.replace(wrong, right)
+    return text
+
+
 def _split_long_unit(unit: str) -> list[str]:
     """Cut an over-long unit at sentence (or clause) boundaries.
 
@@ -702,6 +723,7 @@ class Pipeline(threading.Thread):
             except Exception:  # noqa: BLE001
                 masked, tokens = src, {}
             piece = _strip_entities(repair_output(translator.translate(masked)))
+            piece = _fix_currency(piece, src)
             if tokens:
                 try:
                     piece, unrestored = numbers_mod.unmask(piece, tokens)
