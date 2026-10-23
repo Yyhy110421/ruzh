@@ -64,7 +64,9 @@ _REPEATED_UNIT = re.compile(r"(.{1,12}?)\1{2,}")
 #: a general "collapse doubled characters" rule would eat real words like 谢谢 and 常常.
 _OUTPUT_REPAIRS: tuple[tuple[str, str], ...] = (
     # "45 календарных дней" -> "45个历日": the second 日 goes missing.
-    ("历日", "日历日"),
+    # 公历日 first: the lookbehind below would otherwise see 公 and skip it.
+    (r"公历日", "日历日"),
+    (r"(?<!日)历日", "日历日"),
     # "склада покупателя" -> "买方方 ' 仓库": a stray character doubles the word.
     ("买方方", "买方"),
     ("卖方方", "卖方"),
@@ -80,8 +82,7 @@ def repair_output(text: str) -> str:
     if not text:
         return text
     for pattern, replacement in _OUTPUT_REPAIRS:
-        if pattern in text:
-            text = text.replace(pattern, replacement)
+        text = re.sub(pattern, replacement, text)
     return text
 
 

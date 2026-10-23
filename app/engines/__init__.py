@@ -15,7 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..translator import TranslationRoute
-from . import builtin, custom, http_engine
+from . import builtin, custom, http_engine, local_llm
 from .base import EngineError, EngineSpec
 
 __all__ = [
@@ -47,7 +47,7 @@ def write_example() -> Path:
 
 
 def _build_all() -> tuple[dict[str, EngineSpec], list]:
-    specs: list[EngineSpec] = [http_engine.OPENAI_SPEC]
+    specs: list[EngineSpec] = [http_engine.OPENAI_SPEC, local_llm.LOCAL_LLM_SPEC]
     specs += builtin.builtin_specs()
     problems: list = []
 

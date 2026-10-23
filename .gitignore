@@ -1,4 +1,4 @@
-# 虚拟环境与模型：体积大且与机器绑定，一律不进仓库
+﻿# 虚拟环境与模型：体积大且与机器绑定，一律不进仓库
 .venv/
 .venv*/
 models/
@@ -63,3 +63,4 @@ install-gh.sh
 tests/douyin-*.cjs
 tests/hindsight-acceptance.mjs
 tests/*.err
+_llm/
