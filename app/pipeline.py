@@ -282,6 +282,13 @@ class Pipeline(threading.Thread):
         """
         self._pause_event.clear()
         self._stop_event.set()
+        # Stopping screen translation is the natural point to give the memory back; the
+        # local model server is restarted lazily the next time it is selected.
+        try:
+            from .engines import local_llm as _local_llm
+            _local_llm.stop_server()
+        except Exception:  # noqa: BLE001
+            pass
 
     def pause(self) -> None:
         """Suspend work without unloading the models."""
@@ -402,6 +409,17 @@ class Pipeline(threading.Thread):
             # Beam count can change without rebuilding the ONNX sessions.
             self._translator.set_beams(cfg.translate.num_beams)
             return self._translator
+
+        # Switching away from the local model frees its server: a 1.5B model holds about
+        # 1 GB resident, and measured on this 7.7 GB machine that was enough to make a
+        # later model load die with MemoryError.
+        if resolved != "local-llm" and self._translator is not None:
+            try:
+                from .engines import local_llm as _local_llm
+                if _local_llm.stop_server():
+                    self._status("本地大模型已卸载")
+            except Exception:  # noqa: BLE001
+                pass
 
         ready, detail = engine_mod.check(cfg, root)
         if not ready:

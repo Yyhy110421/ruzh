@@ -114,6 +114,28 @@ def ensure_server() -> tuple[str, str]:
     raise RuntimeError("本地模型启动超时")
 
 
+def stop_server() -> bool:
+    """Terminate the server we started, freeing its memory. True if something was stopped.
+
+    The 1.5B model holds about 1 GB resident; measured here that was enough to make an
+    unrelated model load fail with MemoryError on a 7.7 GB machine, so the server must not
+    outlive the work that needed it.
+    """
+    process = _started.get("process")
+    _started.clear()
+    if process is None:
+        return False
+    try:
+        process.terminate()
+        process.wait(timeout=10)
+    except Exception:  # noqa: BLE001
+        try:
+            process.kill()
+        except Exception:  # noqa: BLE001
+            pass
+    return True
+
+
 def _availability(cfg, _models_root: str) -> tuple[bool, str]:
     missing = [name for name, found in (("llama-server.exe", _server_exe()),
                                         ("模型 .gguf", _model_file())) if found is None]
