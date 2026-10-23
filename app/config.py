@@ -56,7 +56,7 @@ class TranslateSettings:
     #: clause ("I've been waiting for this moment my whole life." became
     #: "我一直在等待这个时刻我的一生。"). Greedy is both faster and safer, so it is
     #: the default and beam search is opt-in.
-    num_beams: int = 1
+    num_beams: int = 4
     length_penalty: float = 1.0
     #: Which engine serves translations. Empty means "choose automatically": the
     #: offline model when it is installed (no quota, nothing leaves the machine),

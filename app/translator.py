@@ -59,6 +59,32 @@ _PUNCT_MAP = {",": "，", "!": "！", "?": "？", ":": "：", ";": "；"}
 _REPEATED_UNIT = re.compile(r"(.{1,12}?)\1{2,}")
 
 
+#: Garbling the offline models produce often enough to fix rather than explain away.
+#: Each entry is (pattern, replacement) on the TRANSLATED text and is deliberately narrow:
+#: a general "collapse doubled characters" rule would eat real words like 谢谢 and 常常.
+_OUTPUT_REPAIRS: tuple[tuple[str, str], ...] = (
+    # "45 календарных дней" -> "45个历日": the second 日 goes missing.
+    ("历日", "日历日"),
+    # "склада покупателя" -> "买方方 ' 仓库": a stray character doubles the word.
+    ("买方方", "买方"),
+    ("卖方方", "卖方"),
+    ("供应商商", "供应商"),
+    # "соответствовать требованиям" -> "应合格…的要求": 符合 is the verb it wants.
+    ("应合格", "应符合"),
+    ("须合格", "须符合"),
+)
+
+
+def repair_output(text: str) -> str:
+    """Fix the specific garbling the offline models produce, leaving everything else alone."""
+    if not text:
+        return text
+    for pattern, replacement in _OUTPUT_REPAIRS:
+        if pattern in text:
+            text = text.replace(pattern, replacement)
+    return text
+
+
 def collapse_repeats(text: str) -> str:
     """Collapse degenerate repetition in the decoder's output.
 

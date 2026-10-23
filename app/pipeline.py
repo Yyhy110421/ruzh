@@ -19,7 +19,7 @@ from .capture import ScreenCapture
 from .config import AppConfig, Region
 from .glossary import Glossary, GlossaryError, load_with_builtin
 from .ocr_engine import OcrEngine, script_for
-from .translator import TranslateError, TranslationRoute
+from .translator import TranslateError, TranslationRoute, repair_output
 from .window_target import resolve_region, target_window_label
 
 #: Event kinds pushed onto the output queue.
@@ -701,7 +701,7 @@ class Pipeline(threading.Thread):
                 masked, tokens = numbers_mod.mask(src)
             except Exception:  # noqa: BLE001
                 masked, tokens = src, {}
-            piece = _strip_entities(translator.translate(masked))
+            piece = _strip_entities(repair_output(translator.translate(masked)))
             if tokens:
                 try:
                     piece, unrestored = numbers_mod.unmask(piece, tokens)
