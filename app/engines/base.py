@@ -91,6 +91,16 @@ class CustomEngineAdapter:
     def ready(self) -> bool:
         return getattr(self._target, "ready", True)
 
+    @property
+    def masks_numbers(self) -> bool:
+        """Forward to the wrapped route.
+
+        Without this the wrapper answers the default True and the pipeline masks digits
+        for an engine that declared it does not want them, which then reports "数字未还原"
+        for placeholders the model never had to reproduce.
+        """
+        return getattr(self._target, "masks_numbers", True)
+
     def load(self) -> None:
         if self._loaded:
             return
