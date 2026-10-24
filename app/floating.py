@@ -19,7 +19,7 @@ BODY_BG = "#101014"
 HEAD_BG = "#1b1b22"
 FG = "#f5f5fa"
 DIM = "#9a9aa8"
-MIN_SCALE = 0.55
+MIN_SCALE = 0.55  # unused: kept for import compatibility
 
 
 class FloatingWindow(tk.Toplevel):
@@ -151,13 +151,11 @@ class FloatingWindow(tk.Toplevel):
         span_w = max(1.0, right - left)
         span_h = max(1.0, bottom - top)
 
-        # One uniform factor for every box. Clamping each box to a minimum size broke the
-        # proportions, which is what "比例不对" was.
-        # Never shrink below the point where a 6pt glyph still fits the shortest
-        # box: at 0.30 the boxes were 5-8 px tall, a 6pt line is ~8 px, and the
-        # text spilled onto the next block. Below this the canvas scrolls instead.
+        # Everything scales by ONE factor, and that factor is whatever makes the whole
+        # layout fit: no per-box minimums, no clipping at the edge, no truncation. If the
+        # content is smaller than the canvas it is drawn at 1:1 rather than blown up.
         fit = min(width / span_w, height / span_h)
-        scale = max(fit, MIN_SCALE)
+        scale = min(1.0, fit)
         total_w = span_w * scale
         total_h = span_h * scale
 
