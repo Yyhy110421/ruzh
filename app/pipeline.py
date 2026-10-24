@@ -207,6 +207,8 @@ def _ocr_rows_meta(lines) -> list[dict]:
         items.append({"text": text, "left": min(xs), "top": min(ys),
                       "width": max(1.0, max(xs) - min(xs)),
                       "height": max(1.0, max(ys) - min(ys))})
+    # Row grouping needs top-then-left (boxes on one row must meet), so this stays; the
+    # column order is applied to the finished rows below.
     items.sort(key=lambda item: (item["top"], item["left"]))
 
     rows: list[dict] = []
@@ -218,7 +220,15 @@ def _ocr_rows_meta(lines) -> list[dict]:
                 break
         else:
             rows.append({"top": item["top"], "height": item["height"], "boxes": [item]})
-    rows.sort(key=lambda row: row["top"])
+    # A screen has columns; a list of lines does not. Sort the finished rows by side first,
+    # the same rule _ocr_rows uses, or the left panel and the right panel interleave.
+    if rows:
+        row_lefts = [min(box["left"] for box in row["boxes"]) for row in rows]
+        middle = (min(row_lefts) + max(row_lefts)) / 2.0
+    else:
+        middle = 0.0
+    rows.sort(key=lambda row: (0 if min(box["left"] for box in row["boxes"]) <= middle else 1,
+                               row["top"]))
 
     out: list[dict] = []
     for row in rows:
@@ -667,9 +677,8 @@ class Pipeline(threading.Thread):
                 # The lines as the recogniser saw them, not the flattened string: the
                 # layout is the only thing that tells the reader which part of the page
                 # a translation came from.
-                line_texts = _ocr_rows(result.lines)
-                if not line_texts:
-                    line_texts = [text]
+                rows_meta = _ocr_rows_meta(result.lines)
+                line_texts = [row["text"] for row in rows_meta] or [text]
                 try:
                     translation, translate_ms, sent, shown = self._translate_units(
                         line_texts, translator, glossary, cfg)
@@ -779,6 +788,9 @@ class Pipeline(threading.Thread):
 
         started = time.perf_counter()
         pieces: list[str] = []
+        # Kept so the caller can pair each translation with the box it came from; the
+        # overlay draws one label per box instead of one flat list.
+        self._last_pieces = pieces
         sent = 0
         for unit in units:
             cached = self._unit_cache.get(unit)
