@@ -155,6 +155,10 @@ class OpenAIChatTranslator:
             ],
             "temperature": 0,
             "stream": False,
+            # Generation is the bottleneck (3.3 tok/s on CPU). A label cannot need more
+            # than a handful of tokens, so cap the answer at roughly the source length:
+            # unbounded generation was spending seconds past the end of the sentence.
+            "max_tokens": max(24, min(400, int(len(text) * 1.6) + 12)),
         }
         headers = {"Content-Type": "application/json", "User-Agent": USER_AGENT}
         if self.api_key:

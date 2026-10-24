@@ -245,9 +245,17 @@ class Overlay:
             self._item_labels.append(label)
         self.last_text = "\n".join(str(item[4]).strip() for item in usable)
 
+        # Size and position from the boxes when the region is unknown. Relying on the
+        # region alone left the window at its default tiny size whenever TARGET had not
+        # arrived, which on screen reads as "the overlay did not appear at all".
         if self._region is not None and self._region.valid:
             win.geometry(f"{self._region.width}x{self._region.height}"
                          f"+{self._region.left}+{self._region.top}")
+        else:
+            span_w = int(max(float(i[0]) + float(i[2]) for i in usable)) + 2 * cfg.padding
+            span_h = int(max(float(i[1]) + float(i[3]) for i in usable)) + 2 * cfg.padding
+            win.geometry(f"{max(120, span_w)}x{max(60, span_h)}"
+                         f"+{int(origin_left)}+{int(origin_top)}")
         win.deiconify()
         win.lift()
         self.set_click_through(cfg.click_through)

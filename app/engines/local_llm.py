@@ -94,8 +94,11 @@ def ensure_server() -> tuple[str, str]:
     port = _free_port()
     creation = getattr(subprocess, "CREATE_NO_WINDOW", 0)
     process = subprocess.Popen(
+        # All cores, not half. Generation measured 3.3 tok/s on four threads; the model is
+        # 1 GB and the machine has room, so the extra threads are free speed. A user
+        # translating twelve blocks waits 84 s at four threads.
         [str(exe), "-m", str(model), "--port", str(port), "-t",
-         str(max(2, (os.cpu_count() or 4) // 2))],
+         str(max(2, os.cpu_count() or 4))],
         cwd=str(exe.parent), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         creationflags=creation,
     )
