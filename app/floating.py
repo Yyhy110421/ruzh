@@ -1,4 +1,4 @@
-﻿"""The floating translation window.
+"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -75,10 +75,15 @@ class FloatingWindow(tk.Toplevel):
         self._redraw()
 
     def raise_above(self) -> None:
+        """Bring the window to the front once, without pinning it above everything.
+
+        Always-on-top was forced before; it covered whatever the user was reading, so the
+        window now simply comes forward when a new translation arrives.
+        """
         try:
             self.deiconify()
             self.lift()
-            except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             pass
 
     # -- internals ---------------------------------------------------------
