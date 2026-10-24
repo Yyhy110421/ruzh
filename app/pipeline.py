@@ -341,6 +341,7 @@ class Pipeline(threading.Thread):
         # is 8-12 units, so 12 finishes one in a single pass. Measured cost: 12 x ~3 s for
         # the local model, ~11 s for OPUS.
         self.unit_budget = 12
+        self._last_items: list[tuple] = []
 
     # -- public API --------------------------------------------------------
     def update_config(self, cfg: AppConfig) -> None:
@@ -397,6 +398,19 @@ class Pipeline(threading.Thread):
 
     def _error(self, message: str, detail: str = "") -> None:
         self._emit(Event(kind=ERROR, message=message, meta={"detail": detail}))
+
+    def _pair_items(self, rows_meta) -> list[tuple]:
+        """(left, top, width, height, translated) for every row, or [] if lengths differ.
+
+        The overlay draws one label per entry at the original box with the font scaled to
+        fit. A mismatch means the unit list was merged or split, and pairing then would put
+        one paragraph's translation under another box - worse than not drawing at all.
+        """
+        pieces = getattr(self, "_last_pieces", []) or []
+        if not rows_meta or len(pieces) != len(rows_meta):
+            return []
+        return [(row["left"], row["top"], row["width"], row["height"], piece)
+                for row, piece in zip(rows_meta, pieces)]
 
     def _ensure_ocr(self, cfg: AppConfig) -> OcrEngine:
         # The script is part of the key: switching from English to Russian has to
@@ -681,7 +695,8 @@ class Pipeline(threading.Thread):
                 line_texts = [row["text"] for row in rows_meta] or [text]
                 try:
                     translation, translate_ms, sent, shown = self._translate_units(
-                        line_texts, translator, glossary, cfg)
+                        line_texts, translator, glossary, cfg, merge=False)
+                    self._last_items = self._pair_items(rows_meta)
                     if shown:
                         text = shown
                     if sent >= self.unit_budget:
@@ -705,6 +720,7 @@ class Pipeline(threading.Thread):
                 capture_ms=capture_ms,
                 ocr_ms=ocr_ms,
                 translate_ms=translate_ms,
+                meta={"items": getattr(self, "_last_items", [])},
             ))
             self._emit(Event(
                 kind=STATS,
@@ -746,7 +762,7 @@ class Pipeline(threading.Thread):
         text = "、".join(str(item) for item in unrestored[:5])
         self._error(f"数字未还原：{text}（原文: {unit[:40]}）")
 
-    def _translate_units(self, line_texts, translator, glossary, cfg):
+    def _translate_units(self, line_texts, translator, glossary, cfg, merge: bool = True):
         """Translate line by line, keeping the layout, reusing what has not changed.
 
         Handing the whole recognised text to the engine in one go is what made a web page
@@ -775,7 +791,7 @@ class Pipeline(threading.Thread):
             line = (raw or "").strip()
             if not line:
                 continue
-            if units and _merges(units[-1], line):
+            if merge and units and _merges(units[-1], line):
                 units[-1] = _join_units_text(units[-1], line)
             else:
                 units.append(line)

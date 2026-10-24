@@ -33,6 +33,17 @@ WDA_EXCLUDEFROMCAPTURE = 0x00000011
 CHROMA_KEY = "#0b0c0d"
 
 
+def _fit_font(text: str, width: float, height: float) -> int:
+    """Largest font size at which *text* plausibly fits the box, floored at 6pt."""
+    size = max(7, min(16, int(height * 0.8) or 12))
+    while size > 6:
+        per_line = max(1, int(width / (size * 0.95)))
+        lines = max(1, -(-len(text) // per_line))
+        if lines * size * 1.35 <= height + 2:
+            return size
+        size -= 1
+    return 6
+
 class Overlay:
     def __init__(self, parent: tk.Misc) -> None:
         self.parent = parent
@@ -48,6 +59,8 @@ class Overlay:
         self._drag_offset = (0, 0)
         self._manual_pos: tuple[int, int] | None = None
         self.last_text = ""
+        #: One label per source box when show_items() is used instead of show_text().
+        self._item_labels: list[tk.Label] = []
 
     # -- window plumbing ---------------------------------------------------
     def _ensure_window(self) -> tk.Toplevel:
@@ -189,6 +202,54 @@ class Overlay:
             fg=cfg.text_color,
             font=(cfg.font_family, cfg.font_size, "bold"),
         )
+        self.set_click_through(cfg.click_through)
+
+    def show_items(self, items, region: "Region | None" = None) -> None:
+        """Draw one translation per source box, in place, with the font shrunk to fit.
+
+        The flat text panel is the wrong shape for a screen: a UI has a left panel and a
+        right panel, buttons beside labels, and reading the result as one column loses
+        which block each line belongs to. Each entry here is
+        (left, top, width, height, translated) in capture coordinates, so the translation
+        lands where the original was and is scaled down until it fits that box.
+        """
+        cfg = self._settings
+        usable = [item for item in (items or []) if str(item[4] or "").strip()]
+        if not usable:
+            self.show_text("", "")
+            return
+
+        win = self._ensure_window()
+        for label in self._item_labels:
+            try:
+                label.destroy()
+            except Exception:  # noqa: BLE001
+                pass
+        self._item_labels = []
+        self._source_label.pack_forget()
+        self._text_label.pack_forget()
+        frame = self._frame
+
+        origin_left = min(float(item[0]) for item in usable)
+        origin_top = min(float(item[1]) for item in usable)
+        for left, top, width, height, piece in usable:
+            text = str(piece).strip()
+            size = _fit_font(text, float(width), float(height))
+            label = tk.Label(frame, text=text, justify="left", anchor="nw",
+                             wraplength=max(40, int(width) - 4),
+                             font=("Segoe UI", size), bd=0, highlightthickness=0)
+            label.place(x=int(float(left) - origin_left) + cfg.padding,
+                        y=int(float(top) - origin_top) + cfg.padding,
+                        width=max(20, int(float(width))),
+                        height=max(14, int(float(height))))
+            self._item_labels.append(label)
+        self.last_text = "\n".join(str(item[4]).strip() for item in usable)
+
+        if self._region is not None and self._region.valid:
+            win.geometry(f"{self._region.width}x{self._region.height}"
+                         f"+{self._region.left}+{self._region.top}")
+        win.deiconify()
+        win.lift()
         self.set_click_through(cfg.click_through)
 
     def show_text(self, source: str, translation: str) -> None:

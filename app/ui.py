@@ -1245,7 +1245,19 @@ class App(tk.Tk):
                 self.log(f"       译文: {event.translation[:200]!r}")
                 self._set_text(self.result_text, event.translation)
                 if self.cfg.overlay.enabled:
-                    self.overlay.show_text(event.source, event.translation)
+                    # Positioned rendering when the pipeline paired every translation with
+                    # its box; the flat panel stays as the fallback, because a wrong
+                    # position is worse than no position.
+                    items = (event.meta or {}).get("items") or []
+                    placed = False
+                    if items:
+                        try:
+                            self.overlay.show_items(items, self.overlay._region)
+                            placed = True
+                        except Exception:  # noqa: BLE001
+                            placed = False
+                    if not placed:
+                        self.overlay.show_text(event.source, event.translation)
                 if self.cfg.copy_to_clipboard and event.translation:
                     try:
                         self.clipboard_clear()
