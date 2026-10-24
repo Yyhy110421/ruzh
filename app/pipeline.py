@@ -264,7 +264,12 @@ class Pipeline(threading.Thread):
         #: would otherwise take half a minute before the first word appeared. The extras
         #: are filled in by the following cycles, which cost almost nothing for the lines
         #: already cached.
-        self.unit_budget = 5
+        # 12, not 5. At five the first screenful came out half English and half
+        # translated, which reads as a broken feature even though the next cycle fills the
+        # rest in: the user sees the snapshot, not the eventual state. A typical UI window
+        # is 8-12 units, so 12 finishes one in a single pass. Measured cost: 12 x ~3 s for
+        # the local model, ~11 s for OPUS.
+        self.unit_budget = 12
 
     # -- public API --------------------------------------------------------
     def update_config(self, cfg: AppConfig) -> None:

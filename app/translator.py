@@ -118,14 +118,59 @@ def fix_currency(text: str, source: str) -> str:
     return text.replace("\u5362\u5e03\u5e03", "\u5362\u5e03")
 
 
-def finalise(piece: str, source: str) -> str:
+def finalise(piece: str, source: str, target_lang: str = "zh") -> str:
     """The last pass every translated string goes through, on every surface.
 
     Screen, Word, Excel, PDF and image translation all end here. They used to diverge:
     the screen path repaired "预付款款" and forced 卢布, the document path did neither, so
     the same model produced different quality depending on which button was pressed.
     """
-    return fix_currency(repair_output(piece), source)
+    return fix_currency(repair_output(fit_to_source(piece, source, target_lang)), source)
+
+
+#: A unit of screen text is ONE line, so its translation has to be one line too. Measured:
+#: "Create a tutorial repository.." came back as a six-item plan for building a website -
+#: the line count no longer matched the source, which makes the overlay useless even
+#: though every individual word was translated.
+#: Length ceilings are per target script: a Russian word becomes 2-3 Chinese characters, so
+#: ru->zh shrinks; zh->ru roughly quadruples.
+MAX_GROWTH_CJK = 1.6
+MAX_GROWTH_LATIN = 5.0
+_SENTENCE_END = re.compile(r"[.!?;:。！？；：]")
+
+
+def fit_to_source(piece: str, source: str, target_lang: str = "zh") -> str:
+    """Keep one unit's translation on one line and close to the source's length.
+
+    Anything past the ceiling is dropped at the last sentence end before it, because the
+    alternative - keeping a paragraph the model invented - is worse than a short line.
+    """
+    if not piece:
+        return piece
+    # An identifier is not prose. "Yyhy110421/ruzh" came back as "人民币110421"; a repo
+    # slug, a path or a version string must survive verbatim.
+    token = source.strip()
+    if token and not re.search(r"\s", token) and re.search(r"[\d/\\_@]", token):
+        return token
+    text = re.sub(r"\s*\n\s*", " ", piece).strip()
+    # A short screen label is not the opening of a paragraph. "Create a tutorial
+    # repository.." came back as "创建教程仓库的步骤如下： 1. 创建一个新的 Git 仓库：" - the
+    # colon is where the model stopped translating and started explaining.
+    if len(source) <= 40:
+        for mark in ("：", ": "):
+            head = text.split(mark)[0]
+            if head and head != text:
+                text = head
+                break
+    limit = max(24, int(len(source) * (MAX_GROWTH_CJK if target_lang in ("zh", "ja", "ko")
+                                       else MAX_GROWTH_LATIN)) + 12)
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    matches = list(_SENTENCE_END.finditer(cut))
+    if matches:
+        cut = cut[: matches[-1].end()]
+    return cut.strip()
 
 
 def collapse_repeats(text: str) -> str:
