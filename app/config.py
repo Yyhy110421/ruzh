@@ -61,7 +61,10 @@ class TranslateSettings:
     #: Which engine serves translations. Empty means "choose automatically": the
     #: offline model when it is installed (no quota, nothing leaves the machine),
     #: otherwise the best keyless online engine. See app/engines/.
-    engine: str = ""
+    # Default to the local model: it is the only offline engine whose output is usable
+    # as-is. An empty string resolved to OPUS, which is the fastest and the worst -
+    # a first run produced "Покупателя покупателя"-grade text and looked broken.
+    engine: str = "local-llm"
 
 
 @dataclass
