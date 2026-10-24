@@ -177,7 +177,7 @@ def _fit(text: str, width: float, height: float) -> tuple[int, str]:
     """
     if width < 10 or height < 6:
         return 4, ''
-    for size in range(min(13, int(max(4, height * 0.95))), 3, -1):
+    for size in range(max(4, min(13, int(height / 1.45))), 3, -1):
         per_line = max(1, int(width / (size * 0.72)))
         lines = max(1, int(height / (size * 1.35)))
         room = per_line * lines
