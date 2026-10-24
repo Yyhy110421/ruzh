@@ -71,12 +71,20 @@ class Overlay:
         win.overrideredirect(True)
         win.attributes("-topmost", True)
         try:
-            win.attributes("-toolwindow", True)
+            # Only in the opaque modes: -toolwindow makes the window borderless-toolish
+            # and breaks -transparentcolor, which needs Tk's plain layered window.
+            if getattr(self._settings, "background_mode", "solid") != "transparent":
+                win.attributes("-toolwindow", True)
         except Exception:  # noqa: BLE001
             pass
         win.withdraw()
 
-        frame = tk.Frame(win, bd=0, highlightthickness=1, highlightbackground="#3f3f46")
+        try:
+            win.configure(bg="#0b0b0d")
+            win.attributes("-transparentcolor", CHROMA_KEY)
+        except Exception:  # noqa: BLE001
+            pass
+        frame = tk.Frame(win, bd=0, highlightthickness=0, bg="#0b0b0d")
         frame.pack(fill="both", expand=True)
         self._frame = frame
 
@@ -117,9 +125,20 @@ class Overlay:
 
     def set_click_through(self, enabled: bool) -> None:
         self._click_through = enabled
+        # No WS_EX_LAYERED: Tk already makes this a layered window for
+        # -transparentcolor, and setting the flag by hand wipes the colour key, which is
+        # why the overlay painted a black slab or vanished.
         self._apply_ex_style(
-            WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TOOLWINDOW, enabled
+            WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW, enabled
         )
+        # Re-apply the colour key. SetWindowLongPtr on a layered window wipes the layered
+        # attributes, including the key -transparentcolor installed - which is why the
+        # overlay went black or invisible the moment click-through was configured.
+        if getattr(self._settings, "background_mode", "solid") == "transparent":
+            try:
+                self._ensure_window().attributes("-transparentcolor", CHROMA_KEY)
+            except Exception:  # noqa: BLE001
+                pass
 
     def set_capture_excluded(self, enabled: bool) -> bool:
         """Hide (or reveal) the window from screen captures. Returns success."""
@@ -174,10 +193,7 @@ class Overlay:
                 win.attributes("-transparentcolor", CHROMA_KEY)
             except Exception:  # noqa: BLE001
                 pass
-            try:
-                win.attributes("-alpha", 1.0)
-            except Exception:  # noqa: BLE001
-                pass
+
         else:
             bg = cfg.bg_color
             try:
@@ -236,7 +252,7 @@ class Overlay:
             text = str(piece).strip()
             size = _fit_font(text, float(width), float(height))
             label = tk.Label(frame, text=text, justify="left", anchor="nw",
-                             wraplength=max(40, int(width) - 4),
+                             wraplength=max(40, int(width) - 4), bg="#fbfbfd", fg="#111111",
                              font=("Segoe UI", size), bd=0, highlightthickness=0)
             label.place(x=int(float(left) - origin_left) + cfg.padding,
                         y=int(float(top) - origin_top) + cfg.padding,

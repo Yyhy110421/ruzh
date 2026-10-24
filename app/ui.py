@@ -352,6 +352,7 @@ class App(tk.Tk):
         ttk.Checkbutton(run_row, text="显示悬浮字幕", variable=self.overlay_var,
                         command=self._on_overlay_toggle).pack(side="left", padx=(14, 0))
         row += 1
+        self._install_hotkeys()
 
         ttk.Separator(tab, orient="horizontal").grid(row=row, column=0, sticky="ew",
                                                      pady=(0, 14))
@@ -526,6 +527,40 @@ class App(tk.Tk):
             pipeline.pause()
             self._status("已暂停（模型还在内存里，继续是秒开的）")
         self._refresh_running_buttons()
+
+    def _install_hotkeys(self) -> None:
+        """F9 / F10 / F11 as real global hotkeys.
+
+        They were only printed on the buttons - there was no binding at all, so pressing
+        F9 did nothing. RegisterHotKey works whatever window has focus, which is what the
+        labels promise: you start the translation while looking at the target window.
+        """
+        try:
+            import ctypes
+            from ctypes import wintypes
+
+            user32 = ctypes.windll.user32
+            hwnd = int(self.winfo_id())
+            mapping = {0x78: self.start, 0x7A: self.stop, 0x79: self.toggle_pause}
+            registered = [vk for vk in mapping
+                          if user32.RegisterHotKey(hwnd, vk, 0x4000, vk)]
+            if not registered:
+                return
+
+            def poll() -> None:
+                msg = wintypes.MSG()
+                while user32.PeekMessageW(ctypes.byref(msg), hwnd, 0x0312, 0x0312, 1):
+                    handler = mapping.get(int(msg.wParam))
+                    if handler is not None:
+                        handler()
+                try:
+                    self.after(120, poll)
+                except Exception:  # noqa: BLE001
+                    pass
+
+            self.after(120, poll)
+        except Exception:  # noqa: BLE001
+            pass
 
     def start(self) -> None:
         pipeline = self.pipeline
@@ -1177,8 +1212,17 @@ class App(tk.Tk):
             self.hotkeys = HotkeyManager(mapping, self.hotkey_queue)
             self.hotkeys.start()
             self.hotkeys.wait_ready(2.0)
-            for name, reason in self.hotkeys.failed.items():
+            failed = dict(getattr(self.hotkeys, "failed", {}) or {})
+            for name, reason in failed.items():
                 self.log(f"[热键] {name} 注册失败：{reason}")
+            # The buttons are the reliable path. Printing "( F9 )" on a button whose
+            # hotkey another program has claimed tells the user to press a key that does
+            # nothing - measured here: F9, F10 and F11 were all taken.
+            if any(key in failed for key in ("start", "stop", "pause")):
+                self.start_btn.configure(text="▶  开始翻译")
+                self.pause_btn.configure(text="⏸  暂停")
+                self.stop_btn.configure(text="■  停止")
+                self._status("热键被其它程序占用，请点按钮")
         except Exception as exc:  # noqa: BLE001
             self.hotkeys = None
             self.log(f"[热键] 无法启动：{exc}")
@@ -1258,6 +1302,9 @@ class App(tk.Tk):
                             placed = False
                     if not placed:
                         self.overlay.show_text(event.source, event.translation)
+                    self.log(f"[叠加层] items={len(items)} placed={placed} "
+                             f"enabled={self.cfg.overlay.enabled} "
+                             f"region={self.overlay._region}")
                 if self.cfg.copy_to_clipboard and event.translation:
                     try:
                         self.clipboard_clear()
