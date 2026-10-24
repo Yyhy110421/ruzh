@@ -1,4 +1,4 @@
-"""The floating translation window.
+﻿"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -19,7 +19,7 @@ BODY_BG = "#101014"
 HEAD_BG = "#1b1b22"
 FG = "#f5f5fa"
 DIM = "#9a9aa8"
-MIN_SCALE = 0.85
+MIN_SCALE = 0.55
 
 
 class FloatingWindow(tk.Toplevel):
