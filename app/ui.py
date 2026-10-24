@@ -353,6 +353,11 @@ class App(tk.Tk):
                         command=self._on_overlay_toggle).pack(side="left", padx=(14, 0))
         row += 1
         self._install_hotkeys()
+        # Start by itself: the hotkey is often taken by another program and a
+        # synthetic click cannot reach a Tk button, so requiring one click to begin
+        # left the app sitting there doing nothing.
+        if getattr(self.cfg, "autostart", True):
+            self.after(1200, self.start)
 
         ttk.Separator(tab, orient="horizontal").grid(row=row, column=0, sticky="ew",
                                                      pady=(0, 14))
