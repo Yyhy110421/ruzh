@@ -186,6 +186,33 @@ def _ocr_rows(lines) -> list[str]:
     return joined
 
 
+
+def _layout_rows(items):
+    """Turn positioned blocks into text rows that keep their columns.
+
+    The pane used to receive one flat list, so a window with a left column and a right
+    column came out as a single vertical run. Blocks whose tops line up belong to the
+    same row; inside a row they keep their left-to-right order, separated by tabs.
+    """
+    if not items:
+        return ""
+    rows = []
+    for item in sorted(items, key=lambda i: (float(i[1]), float(i[0]))):
+        top, left, text = float(item[1]), float(item[0]), str(item[4]).strip()
+        if not text:
+            continue
+        height = float(item[3]) or 20.0
+        if rows and abs(top - rows[-1][0]) <= max(6.0, height * 0.6):
+            rows[-1][1].append((left, text))
+        else:
+            rows.append([top, [(left, text)]])
+    lines = []
+    for _top, cells in rows:
+        cells.sort(key=lambda c: c[0])
+        lines.append(chr(9).join(text for _left, text in cells))
+    return chr(10).join(lines)
+
+
 def _ocr_rows_meta(lines) -> list[dict]:
     """Rows with their geometry: {text, left, top, width, height}.
 
@@ -715,11 +742,15 @@ class Pipeline(threading.Thread):
             # One source block per line. The pane used to receive the blocks joined by
             # spaces, so "识别的原文" showed one long run while 译文 was correctly broken
             # into twelve - that mismatch is what "分行" was about.
+            # Lay the translation out the way the source sits on screen: blocks that
+            # share a row stay on one line, left and right kept apart by tabs. A flat
+            # list read as one vertical run and lost the columns.
+            layout = _layout_rows(getattr(self, "_last_items", []))
             source_text = shown if isinstance(shown, str) and shown.strip() else text
             self._emit(Event(
                 kind=RESULT,
                 source=source_text,
-                translation=translation,
+                translation=layout or translation,
                 changed=changed,
                 capture_ms=capture_ms,
                 ocr_ms=ocr_ms,

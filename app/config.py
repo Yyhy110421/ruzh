@@ -69,7 +69,9 @@ class TranslateSettings:
 
 @dataclass
 class OverlaySettings:
-    enabled: bool = True
+    # Off by default: the floating window was never asked for. The panes are the
+    # product; the overlay stays available as an opt-in checkbox.
+    enabled: bool = False
     font_family: str = "Microsoft YaHei UI"
     font_size: int = 22
     text_color: str = "#FFFFFF"
