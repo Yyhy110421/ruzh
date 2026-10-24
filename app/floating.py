@@ -228,17 +228,23 @@ class FloatingWindow(tk.Toplevel):
 
 
 def _fit(text: str, width: float, height: float) -> tuple[int, str]:
-    """Largest size at which the block fits on ONE line, plus the text that fits."""
+    """Largest size at which the block fits on one line, plus the text that fits.
+
+    Width is measured per character instead of assumed: a CJK glyph is about as wide as
+    the point size, a Latin one about 0.55 of it. Using one factor for both under-
+    estimated CJK by a third, so the text ran past its box and was clipped.
+    """
     if width < 8 or height < 5:
         return 4, ''
-    top = max(4, min(13, int(height / 1.45)))
+
+    def need(size: int) -> float:
+        return sum(1.0 if ord(ch) > 127 else 0.55 for ch in text) * size
+
+    top = max(4, min(16, int(height / 1.30)))
     for size in range(top, 3, -1):
-        per_char = size * 0.78
-        room = max(1, int(width / per_char))
-        if len(text) <= room:
+        if need(size) <= width - 2:
             return size, text
-        if size == 4:
-            if room <= 2:
-                return 4, text[:1]
-            return 4, text[:room - 1] + '…'
-    return 4, text[:1]
+    cut = text
+    while cut and need(4) > width - 2:
+        cut = cut[:-1]
+    return 4, (cut[:-1] + '…') if len(cut) < len(text) and cut else cut
