@@ -1,4 +1,4 @@
-﻿"""The floating translation window.
+"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -73,9 +73,14 @@ class FloatingWindow(tk.Toplevel):
         self._canvas.bind("<Leave>", lambda _e: self._canvas.unbind_all("<MouseWheel>"))
 
     # -- public ------------------------------------------------------------
-    def update_result(self, source: str, items) -> None:
+    def update_result(self, source: str, items, translation: str = "") -> None:
         text = " ".join((source or "").split())
         self._source = text[:300] + "…" if len(text) > 300 else text
+        if not items and translation.strip():
+            # No boxes to place (pairing failed or OCR gave none): still show the
+            # translation, one line under another, instead of a blank window.
+            items = [(0.0, float(n * 26), 400.0, 24.0, line)
+                     for n, line in enumerate(translation.splitlines()) if line.strip()]
         self._items = [(float(i[0]), float(i[1]), float(i[2]), float(i[3]), str(i[4]))
                        for i in items if str(i[4]).strip()]
         self._apply_source()

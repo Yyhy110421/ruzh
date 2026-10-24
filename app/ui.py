@@ -1286,7 +1286,8 @@ class App(tk.Tk):
                     if win is None or not win.winfo_exists():
                         from .floating import FloatingWindow
                         win = self._floating = FloatingWindow(self)
-                    win.update_result(event.source, (event.meta or {}).get("items") or [])
+                    win.update_result(event.source, (event.meta or {}).get("items") or [],
+                                      event.translation)
                     win.raise_above()
                 except Exception:  # noqa: BLE001
                     pass
