@@ -167,30 +167,26 @@ class FloatingWindow(tk.Toplevel):
             bw = max(8.0, w * scale)
             bh = max(8.0, h * scale)
             size, text = _fit(text, bw, bh)
-            canvas.create_text(x + 1, y, text=text, anchor="nw", width=int(bw),
+            # No wrapping: Tk breaks CJK anywhere, which split "Yyhy110421/ruzh"
+            # across lines and left a stray 。 alone. One line per block instead.
+            canvas.create_text(x + 1, y, text=text, anchor="nw",
                                fill=FG, font=(FONT, size))
 
         canvas.configure(scrollregion=(0, 0, max(total_w, width), max(total_h, height)))
 
 
 def _fit(text: str, width: float, height: float) -> tuple[int, str]:
-    """Largest point size that fits, and the text cut down to what that size fits.
-
-    Returning only a size was the bug behind the overlap: at the 6pt floor a long
-    block still needed two lines, drew taller than its box, and sat on top of the next
-    block. Cutting the text is the only way to guarantee a single block neither grows
-    nor covers its neighbour.
-    """
-    if width < 10 or height < 6:
+    """Largest size at which the block fits on ONE line, plus the text that fits."""
+    if width < 8 or height < 5:
         return 4, ''
-    for size in range(max(4, min(13, int(height / 1.45))), 3, -1):
-        per_line = max(1, int(width / (size * 0.72)))
-        lines = max(1, int(height / (size * 1.35)))
-        room = per_line * lines
+    top = max(4, min(13, int(height / 1.45)))
+    for size in range(top, 3, -1):
+        per_char = size * 0.78
+        room = max(1, int(width / per_char))
         if len(text) <= room:
             return size, text
         if size == 4:
-            if room <= 1:
-                return 4, text[:max(1, room)]
+            if room <= 2:
+                return 4, text[:1]
             return 4, text[:room - 1] + '…'
     return 4, text[:1]
