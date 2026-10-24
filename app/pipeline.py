@@ -164,8 +164,20 @@ def _ocr_rows(lines) -> list[str]:
         else:
             rows.append({"top": top, "height": height, "cells": [(left, text)]})
 
+    # A screen has columns; a list of lines does not. GitHub Desktop puts a left panel
+    # (search box, "Your repositories", the repo list) beside a right panel (four buttons),
+    # and reading them as one top-to-bottom run interleaved the two - reported as "分行".
+    # Rows are therefore ordered by side then by height, so everything from the left panel
+    # comes out together and everything from the right panel comes out together.
+    lefts = [min(cell[0] for cell in row["cells"]) for row in rows]
+    middle = (min(lefts) + max(lefts)) / 2.0 if lefts else 0.0
+
+    def order(row) -> tuple[int, float]:
+        side = 0 if min(cell[0] for cell in row["cells"]) <= middle else 1
+        return side, row["top"]
+
     joined = []
-    for row in rows:
+    for row in sorted(rows, key=order):
         row["cells"].sort(key=lambda cell: cell[0])
         row_text = row["cells"][0][1]
         for _, cell in row["cells"][1:]:
