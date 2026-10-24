@@ -1289,8 +1289,10 @@ class App(tk.Tk):
                     win.update_result(event.source, (event.meta or {}).get("items") or [],
                                       event.translation)
                     win.raise_above()
-                except Exception:  # noqa: BLE001
-                    pass
+                except Exception as exc:  # noqa: BLE001
+                    # Was silent: a failure here left nothing on screen and no trace,
+                    # which is indistinguishable from "the feature does not exist".
+                    self.log(f"[悬浮窗] 失败：{type(exc).__name__}: {exc}")
                 if self.cfg.overlay.enabled:
                     # Positioned rendering when the pipeline paired every translation with
                     # its box; the flat panel stays as the fallback, because a wrong

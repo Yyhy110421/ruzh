@@ -47,16 +47,17 @@ class FloatingWindow(tk.Toplevel):
         self._toggle.pack(side="left", padx=(4, 0), pady=2)
         # One line, always. Wrapping here is what pushed the translation down and made
         # the window look like it had lost its proportions.
-        self._source_label = tk.Label(self._head, text="（等待识别）", bg=HEAD_BG, fg=DIM,
-                                     font=(FONT, 9), anchor="w", justify="left")
-        self._source_label.pack(side="left", fill="x", expand=True, padx=(2, 8), pady=4)
-        # The user decides. Forcing always-on-top covered whatever was being read.
+        # Packed BEFORE the source label: the label expands to fill the header, so anything
+        # packed after it gets pushed off the right edge and disappears with a long line.
         self._topmost = tk.BooleanVar(value=False)
         tk.Checkbutton(self._head, text="置顶", variable=self._topmost,
                        command=self._apply_topmost, bg=HEAD_BG, fg=DIM,
                        selectcolor=HEAD_BG, activebackground=HEAD_BG,
                        activeforeground=FG, bd=0, highlightthickness=0,
-                       font=(FONT, 8)).pack(side="right", padx=(0, 6))
+                       font=(FONT, 8)).pack(side="right", padx=(0, 6), pady=2)
+        self._source_label = tk.Label(self._head, text="（等待识别）", bg=HEAD_BG, fg=DIM,
+                                     font=(FONT, 9), anchor="w", justify="left")
+        self._source_label.pack(side="left", fill="x", expand=True, padx=(2, 8), pady=4)
 
         body = tk.Frame(self, bg=BODY_BG)
         body.pack(side="top", fill="both", expand=True)
