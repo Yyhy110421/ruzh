@@ -186,6 +186,55 @@ def _ocr_rows(lines) -> list[str]:
     return joined
 
 
+def _ocr_rows_meta(lines) -> list[dict]:
+    """Rows with their geometry: {text, left, top, width, height}.
+
+    A screen is not a column of paragraphs - it has a left panel and a right panel, and
+    each block has its own box. Carrying the box through to the overlay is what lets the
+    translation be drawn where the original was, with the font scaled to fit that box
+    instead of one flat list of lines.
+    """
+    items = []
+    for line in lines or []:
+        text = (getattr(line, "text", "") or "").strip()
+        if not text:
+            continue
+        box = getattr(line, "box", None)
+        if box is None or len(box) == 0:
+            continue
+        xs = [float(point[0]) for point in box]
+        ys = [float(point[1]) for point in box]
+        items.append({"text": text, "left": min(xs), "top": min(ys),
+                      "width": max(1.0, max(xs) - min(xs)),
+                      "height": max(1.0, max(ys) - min(ys))})
+    items.sort(key=lambda item: (item["top"], item["left"]))
+
+    rows: list[dict] = []
+    for item in items:
+        for row in rows:
+            tolerance = max(8.0, 0.5 * min(item["height"], row["height"]))
+            if abs(item["top"] - row["top"]) <= tolerance:
+                row["boxes"].append(item)
+                break
+        else:
+            rows.append({"top": item["top"], "height": item["height"], "boxes": [item]})
+    rows.sort(key=lambda row: row["top"])
+
+    out: list[dict] = []
+    for row in rows:
+        boxes = sorted(row["boxes"], key=lambda item: item["left"])
+        left = min(box["left"] for box in boxes)
+        top = min(box["top"] for box in boxes)
+        right = max(box["left"] + box["width"] for box in boxes)
+        bottom = max(box["top"] + box["height"] for box in boxes)
+        text = boxes[0]["text"]
+        for box in boxes[1:]:
+            text = _join_units_text(text, box["text"])
+        out.append({"text": text, "left": left, "top": top,
+                    "width": max(1.0, right - left), "height": max(1.0, bottom - top)})
+    return out
+
+
 def _merges(previous: str, following: str) -> bool:
     """Is this line a wrapped continuation of the one above it?
 
