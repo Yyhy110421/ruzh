@@ -712,9 +712,13 @@ class Pipeline(threading.Thread):
                 except Exception as exc:  # noqa: BLE001
                     self._error(f"翻译失败：{exc}", traceback.format_exc())
 
+            # One source block per line. The pane used to receive the blocks joined by
+            # spaces, so "识别的原文" showed one long run while 译文 was correctly broken
+            # into twelve - that mismatch is what "分行" was about.
+            source_text = shown if isinstance(shown, str) and shown.strip() else text
             self._emit(Event(
                 kind=RESULT,
-                source=text,
+                source=source_text,
                 translation=translation,
                 changed=changed,
                 capture_ms=capture_ms,
