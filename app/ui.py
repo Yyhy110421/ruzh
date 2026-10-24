@@ -358,18 +358,11 @@ class App(tk.Tk):
                                                      pady=(0, 14))
         row += 1
 
-        ttk.Label(tab, text="识别到的原文", style="Muted.TLabel").grid(
-            row=row, column=0, sticky="w")
-        row += 1
+        # The two readout boxes and their label were removed from this tab: the screen translation now
+        # appears in its own fixed floating window. The widgets are still created (other
+        # code writes into them) but they are not placed, so they take no space.
         self.source_text = self._readout(tab, height=2)
-        self.source_text.grid(row=row, column=0, sticky="ew", pady=(4, 0))
-        row += 1
-
-        ttk.Label(tab, text="译文", style="Muted.TLabel").grid(
-            row=row, column=0, sticky="w", pady=(12, 0))
-        row += 1
         self.result_text = self._readout(tab, height=3, strong=True)
-        self.result_text.grid(row=row, column=0, sticky="nsew", pady=(4, 0))
         return tab
 
     def _readout(self, parent: tk.Misc, height: int, strong: bool = False) -> tk.Text:
@@ -1288,6 +1281,15 @@ class App(tk.Tk):
                 self.log(f"       原文: {event.source[:200]!r}")
                 self.log(f"       译文: {event.translation[:200]!r}")
                 self._set_text(self.result_text, event.translation)
+                try:
+                    win = getattr(self, "_floating", None)
+                    if win is None or not win.winfo_exists():
+                        from .floating import FloatingWindow
+                        win = self._floating = FloatingWindow(self)
+                    win.update_result(event.source, (event.meta or {}).get("items") or [])
+                    win.raise_above()
+                except Exception:  # noqa: BLE001
+                    pass
                 if self.cfg.overlay.enabled:
                     # Positioned rendering when the pipeline paired every translation with
                     # its box; the flat panel stays as the fallback, because a wrong
