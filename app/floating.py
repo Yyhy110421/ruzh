@@ -1,4 +1,4 @@
-﻿"""The floating translation window.
+"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -56,7 +56,8 @@ class FloatingWindow(tk.Toplevel):
                        activeforeground=FG, bd=0, highlightthickness=0,
                        font=(FONT, 8)).pack(side="right", padx=(0, 6), pady=2)
         self._source_label = tk.Label(self._head, text="（等待识别）", bg=HEAD_BG, fg=DIM,
-                                     font=(FONT, 9), anchor="w", justify="left")
+                                     font=(FONT, 9), anchor="w", justify="left",
+                                     wraplength=520)
         self._source_label.pack(side="left", fill="x", expand=True, padx=(2, 8), pady=4)
 
         body = tk.Frame(self, bg=BODY_BG)
@@ -75,8 +76,10 @@ class FloatingWindow(tk.Toplevel):
 
     # -- public ------------------------------------------------------------
     def update_result(self, source: str, items, translation: str = "") -> None:
-        text = " ".join((source or "").split())
-        self._source = text[:300] + "…" if len(text) > 300 else text
+        # Keep the whole source. It is capped nowhere: the header scrolls the extra lines
+        # when expanded and shows one line when collapsed.
+        lines = [ln.strip() for ln in (source or "").splitlines() if ln.strip()]
+        self._source = " ⏎ ".join(lines) if lines else ""
         if not items and translation.strip():
             # No boxes to place (pairing failed or OCR gave none): still show the
             # translation, one line under another, instead of a blank window.
@@ -93,6 +96,57 @@ class FloatingWindow(tk.Toplevel):
             self.attributes("-topmost", bool(self._topmost.get()))
         except Exception:  # noqa: BLE001
             pass
+
+    def _fit_to_content(self) -> None:
+        """Resize the window to the layout instead of making the user drag edges."""
+        if not self._items:
+            return
+        try:
+            left = min(i[0] for i in self._items)
+            top = min(i[1] for i in self._items)
+            right = max(i[0] + i[2] for i in self._items)
+            bottom = max(i[1] + i[3] for i in self._items)
+            want_w = int((right - left) * 1.15) + 40
+            want_h = int((bottom - top) * 1.15) + 70
+            screen_w = self.winfo_screenwidth() - 80
+            screen_h = self.winfo_screenheight() - 120
+            self.geometry(f"{min(want_w, screen_w)}x{min(want_h, screen_h)}+80+60")
+        except Exception:  # noqa: BLE001
+            pass
+
+    def raise_above(self) -> None:
+        """Bring the window to the front once, without pinning it above everything.
+
+        Always-on-top was forced before; it covered whatever the user was reading, so the
+        window now simply comes forward when a new translation arrives.
+        """
+        try:
+            self.deiconify()
+            self.lift()
+        except Exception:  # noqa: BLE001
+            pass
+
+    # -- internals ---------------------------------------------------------
+    def _toggle(self) -> None:
+        self._collapsed = not self._collapsed
+        self._toggle.configure(text="▸" if self._collapsed else "▾")
+        self._apply_source()
+
+    def _apply_source(self) -> None:
+        if self._collapsed:
+            text = self._source
+            if len(text) > 60:
+                text = text[:60] + "…"
+            self._source_label.configure(text=text or "（等待识别）")
+        else:
+            # Full source, wrapped over as many lines as it needs. Capping it to one
+            # clipped line meant the source could not be read at all.
+            try:
+                wrap = max(240, self.winfo_width() - 140)
+            except Exception:  # noqa: BLE001
+                wrap = 520
+            self._source_label.configure(text=self._source or "（等待识别）",
+                                         wraplength=wrap)
 
     def _fit_to_content(self) -> None:
         """Resize the window to the layout instead of making the user drag edges."""
