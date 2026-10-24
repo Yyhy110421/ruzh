@@ -50,6 +50,13 @@ class FloatingWindow(tk.Toplevel):
         self._source_label = tk.Label(self._head, text="（等待识别）", bg=HEAD_BG, fg=DIM,
                                      font=(FONT, 9), anchor="w", justify="left")
         self._source_label.pack(side="left", fill="x", expand=True, padx=(2, 8), pady=4)
+        # The user decides. Forcing always-on-top covered whatever was being read.
+        self._topmost = tk.BooleanVar(value=False)
+        tk.Checkbutton(self._head, text="置顶", variable=self._topmost,
+                       command=self._apply_topmost, bg=HEAD_BG, fg=DIM,
+                       selectcolor=HEAD_BG, activebackground=HEAD_BG,
+                       activeforeground=FG, bd=0, highlightthickness=0,
+                       font=(FONT, 8)).pack(side="right", padx=(0, 6))
 
         body = tk.Frame(self, bg=BODY_BG)
         body.pack(side="top", fill="both", expand=True)
@@ -72,7 +79,31 @@ class FloatingWindow(tk.Toplevel):
         self._items = [(float(i[0]), float(i[1]), float(i[2]), float(i[3]), str(i[4]))
                        for i in items if str(i[4]).strip()]
         self._apply_source()
+        self._fit_to_content()
         self._redraw()
+
+    def _apply_topmost(self) -> None:
+        try:
+            self.attributes("-topmost", bool(self._topmost.get()))
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _fit_to_content(self) -> None:
+        """Resize the window to the layout instead of making the user drag edges."""
+        if not self._items:
+            return
+        try:
+            left = min(i[0] for i in self._items)
+            top = min(i[1] for i in self._items)
+            right = max(i[0] + i[2] for i in self._items)
+            bottom = max(i[1] + i[3] for i in self._items)
+            want_w = int((right - left) * 1.15) + 40
+            want_h = int((bottom - top) * 1.15) + 70
+            screen_w = self.winfo_screenwidth() - 80
+            screen_h = self.winfo_screenheight() - 120
+            self.geometry(f"{min(want_w, screen_w)}x{min(want_h, screen_h)}+80+60")
+        except Exception:  # noqa: BLE001
+            pass
 
     def raise_above(self) -> None:
         """Bring the window to the front once, without pinning it above everything.
