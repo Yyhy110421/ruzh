@@ -1,4 +1,4 @@
-"""The floating translation window.
+﻿"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -106,8 +106,8 @@ class FloatingWindow(tk.Toplevel):
             top = min(i[1] for i in self._items)
             right = max(i[0] + i[2] for i in self._items)
             bottom = max(i[1] + i[3] for i in self._items)
-            want_w = int((right - left) * 1.15) + 40
-            want_h = int((bottom - top) * 1.15) + 70
+            want_w = int((right - left) * 1.15) + 90
+            want_h = int((bottom - top) * 1.15) + 130
             screen_w = self.winfo_screenwidth() - 80
             screen_h = self.winfo_screenheight() - 120
             self.geometry(f"{min(want_w, screen_w)}x{min(want_h, screen_h)}+80+60")
@@ -157,8 +157,8 @@ class FloatingWindow(tk.Toplevel):
             top = min(i[1] for i in self._items)
             right = max(i[0] + i[2] for i in self._items)
             bottom = max(i[1] + i[3] for i in self._items)
-            want_w = int((right - left) * 1.15) + 40
-            want_h = int((bottom - top) * 1.15) + 70
+            want_w = int((right - left) * 1.15) + 90
+            want_h = int((bottom - top) * 1.15) + 130
             screen_w = self.winfo_screenwidth() - 80
             screen_h = self.winfo_screenheight() - 120
             self.geometry(f"{min(want_w, screen_w)}x{min(want_h, screen_h)}+80+60")
@@ -209,7 +209,7 @@ class FloatingWindow(tk.Toplevel):
         # layout fit: no per-box minimums, no clipping at the edge, no truncation. If the
         # content is smaller than the canvas it is drawn at 1:1 rather than blown up.
         fit = min(width / span_w, height / span_h)
-        scale = min(1.0, fit)
+        scale = min(1.0, fit * 0.97)
         total_w = span_w * scale
         total_h = span_h * scale
 
