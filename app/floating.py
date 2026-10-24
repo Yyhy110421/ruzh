@@ -1,4 +1,4 @@
-﻿"""The floating translation window.
+"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -89,7 +89,11 @@ class FloatingWindow(tk.Toplevel):
                        for i in items if str(i[4]).strip()]
         self._apply_source()
         self._fit_to_content()
-        self._redraw()
+        # Right after geometry() the canvas still reports its OLD size, so scaling to it
+        # gives a wrong factor and clips the right column. Redraw once the window has been
+        # laid out, and again after the resize has settled.
+        self.after(60, self._redraw)
+        self.after(250, self._redraw)
 
     def _apply_topmost(self) -> None:
         try:
