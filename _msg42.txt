@@ -1,0 +1,11 @@
+透明叠加：改用 Win32 分层窗口 + 逐像素 alpha
+
+Tk 的 Toplevel 做不到——把 -transparentcolor 和点击穿透的扩展样式放一起，整个窗口就消失（试了六种组合）。
+色键能显示，但 GDI 画的字是横条纹。
+
+新文件 app/overlay_native.py：直接建 Win32 分层窗口，文字画进 32 位 DIB，交给 UpdateLayeredWindow，
+逐像素 alpha，不用色键。GDI 不写 alpha 通道，按标记色推导：标记色 -> alpha 0，其余 -> 255。
+字体用 NONANTIALIASED，否则抗锯齿灰边留在透明区变成糊影。
+
+实测截图：背景全透、原文透得出来、字清晰、位置对着原文、左右分栏都对。
+ui 里有 items 就交给 NativeOverlay，失败回退到原来的 Tk 面板。

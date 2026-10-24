@@ -1296,7 +1296,13 @@ class App(tk.Tk):
                     placed = False
                     if items:
                         try:
-                            self.overlay.show_items(items, self.overlay._region)
+                            # Native layered window: per-pixel alpha, so the original text
+                            # stays visible under the translation. The Tk overlay could
+                            # only ever draw an opaque slab.
+                            if getattr(self, "_native", None) is None:
+                                from .overlay_native import NativeOverlay
+                                self._native = NativeOverlay()
+                            self._native.show(items, self.overlay._region)
                             placed = True
                         except Exception:  # noqa: BLE001
                             placed = False
