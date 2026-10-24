@@ -1,4 +1,4 @@
-"""The floating translation window.
+﻿"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
@@ -176,15 +176,15 @@ def _fit(text: str, width: float, height: float) -> tuple[int, str]:
     nor covers its neighbour.
     """
     if width < 10 or height < 6:
-        return 6, ''
-    for size in range(min(13, int(max(6, height * 0.95))), 5, -1):
+        return 4, ''
+    for size in range(min(13, int(max(4, height * 0.95))), 3, -1):
         per_line = max(1, int(width / (size * 0.72)))
         lines = max(1, int(height / (size * 1.35)))
         room = per_line * lines
         if len(text) <= room:
             return size, text
-        if size == 6:
+        if size == 4:
             if room <= 1:
-                return 6, text[:max(1, room)]
-            return 6, text[:room - 1] + '…'
-    return 6, text[:1]
+                return 4, text[:max(1, room)]
+            return 4, text[:room - 1] + '…'
+    return 4, text[:1]
