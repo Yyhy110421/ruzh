@@ -1,62 +1,78 @@
-"""The floating translation window.
+﻿"""The floating translation window.
 
 One line of source at the top (collapsible), everything under it is the translation,
 laid out the way the source sits on screen - left column on the left, right column on
-the right, each block shrunk to fit the space it came from. It lives in its own fixed
-box instead of covering the whole screen.
+the right, each block shrunk to fit the space it came from.
+
+Two things matter for correctness here:
+  * every block is scaled by ONE factor, never clamped per box, so the layout keeps its
+    proportions instead of drifting apart;
+  * the canvas scrolls when the content is bigger than the window, so shrinking the
+    window can never make the blocks draw on top of each other.
 """
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk
 
 FONT = "Microsoft YaHei"
 BODY_BG = "#101014"
 HEAD_BG = "#1b1b22"
-FG = "#f2f2f7"
+FG = "#f5f5fa"
 DIM = "#9a9aa8"
+MIN_SCALE = 0.85
 
 
 class FloatingWindow(tk.Toplevel):
     """Fixed-size translation panel: one source line, then the laid-out translation."""
 
-    WIDTH = 460
-    HEIGHT = 520
+    WIDTH = 900
+    HEIGHT = 680
 
     def __init__(self, master: tk.Misc) -> None:
         super().__init__(master)
         self.title("守译 · 译文")
         self.attributes("-topmost", True)
         self.configure(bg=BODY_BG)
-        self.geometry(f"{self.WIDTH}x{self.HEIGHT}+120+120")
-        self.minsize(280, 220)
+        self.geometry(f"{self.WIDTH}x{self.HEIGHT}+80+60")
+        self.minsize(260, 200)
         self._collapsed = False
         self._items: list[tuple[float, float, float, float, str]] = []
         self._source = ""
 
-        head = tk.Frame(self, bg=HEAD_BG)
-        head.pack(side="top", fill="x")
-        self._toggle = tk.Button(head, text="▾", command=self._toggle, bg=HEAD_BG, fg=DIM,
-                                 bd=0, relief="flat", activebackground=HEAD_BG,
-                                 activeforeground=FG, font=(FONT, 10), cursor="hand2")
-        self._toggle.pack(side="left", padx=(6, 2), pady=4)
-        self._source_var = tk.StringVar(value="（等待识别）")
-        tk.Label(head, textvariable=self._source_var, bg=HEAD_BG, fg=DIM,
-                 font=(FONT, 9), anchor="w", justify="left").pack(
-            side="left", fill="x", expand=True, padx=(0, 8), pady=4)
+        self._head = tk.Frame(self, bg=HEAD_BG)
+        self._head.pack(side="top", fill="x")
+        self._toggle = tk.Button(self._head, text="▾", command=self._toggle,
+                                 bg=HEAD_BG, fg=DIM, bd=0, relief="flat",
+                                 activebackground=HEAD_BG, activeforeground=FG,
+                                 font=(FONT, 10), width=2, cursor="hand2")
+        self._toggle.pack(side="left", padx=(4, 0), pady=2)
+        # One line, always. Wrapping here is what pushed the translation down and made
+        # the window look like it had lost its proportions.
+        self._source_label = tk.Label(self._head, text="（等待识别）", bg=HEAD_BG, fg=DIM,
+                                     font=(FONT, 9), anchor="w", justify="left")
+        self._source_label.pack(side="left", fill="x", expand=True, padx=(2, 8), pady=4)
 
-        self._canvas = tk.Canvas(self, bg=BODY_BG, highlightthickness=0, bd=0)
-        self._canvas.pack(side="top", fill="both", expand=True, padx=6, pady=6)
+        body = tk.Frame(self, bg=BODY_BG)
+        body.pack(side="top", fill="both", expand=True)
+        self._canvas = tk.Canvas(body, bg=BODY_BG, highlightthickness=0, bd=0)
+        self._vbar = tk.Scrollbar(body, orient="vertical", command=self._canvas.yview)
+        self._hbar = tk.Scrollbar(body, orient="horizontal", command=self._canvas.xview)
+        self._canvas.configure(yscrollcommand=self._vbar.set, xscrollcommand=self._hbar.set)
+        self._vbar.pack(side="right", fill="y")
+        self._hbar.pack(side="bottom", fill="x")
+        self._canvas.pack(side="left", fill="both", expand=True)
         self._canvas.bind("<Configure>", lambda _e: self._redraw())
+        self._canvas.bind("<Enter>", lambda _e: self._canvas.bind_all(
+            "<MouseWheel>", lambda ev: self._canvas.yview_scroll(int(-ev.delta / 120), "units")))
+        self._canvas.bind("<Leave>", lambda _e: self._canvas.unbind_all("<MouseWheel>"))
 
     # -- public ------------------------------------------------------------
     def update_result(self, source: str, items) -> None:
-        self._source = " ".join((source or "").split())
-        if len(self._source) > 120:
-            self._source = self._source[:120] + "…"
-        self._source_var.set(self._source or "（等待识别）")
+        text = " ".join((source or "").split())
+        self._source = text[:300] + "…" if len(text) > 300 else text
         self._items = [(float(i[0]), float(i[1]), float(i[2]), float(i[3]), str(i[4]))
                        for i in items if str(i[4]).strip()]
+        self._apply_source()
         self._redraw()
 
     def raise_above(self) -> None:
@@ -70,53 +86,71 @@ class FloatingWindow(tk.Toplevel):
     # -- internals ---------------------------------------------------------
     def _toggle(self) -> None:
         self._collapsed = not self._collapsed
+        self._toggle.configure(text="▸" if self._collapsed else "▾")
+        self._apply_source()
+
+    def _apply_source(self) -> None:
         if self._collapsed:
-            self._source_var.set("原文已折叠（点 ▸ 展开）")
-            self._toggle.configure(text="▸")
-            self._saved = self._source
+            self._source_label.configure(text="原文已折叠")
         else:
-            self._source_var.set(getattr(self, "_saved", "") or self._source)
-            self._toggle.configure(text="▾")
-        self._redraw()
+            self._source_label.configure(text=self._source or "（等待识别）")
 
     def _redraw(self) -> None:
         canvas = self._canvas
         canvas.delete("all")
-        width = canvas.winfo_width() or (self.WIDTH - 20)
-        height = canvas.winfo_height() or (self.HEIGHT - 60)
-        if width < 30 or height < 30 or not self._items:
+        width = canvas.winfo_width() or (self.WIDTH - 30)
+        height = canvas.winfo_height() or (self.HEIGHT - 70)
+        if width < 20 or height < 20 or not self._items:
+            canvas.configure(scrollregion=(0, 0, width, height))
             return
-        boxes, total_w, total_h = self._scaled(width, height)
-        for x, y, w, h, text in boxes:
-            size = _fit_size(text, w, h)
-            canvas.create_text(
-                x + 2, y + 1, text=text, anchor="nw", width=max(20, int(w)),
-                fill=FG, font=(FONT, size),
-                tags=("body",))
 
-    def _scaled(self, width: int, height: int):
-        """Map the captured boxes proportionally into the canvas."""
         left = min(i[0] for i in self._items)
         top = min(i[1] for i in self._items)
         right = max(i[0] + i[2] for i in self._items)
         bottom = max(i[1] + i[3] for i in self._items)
         span_w = max(1.0, right - left)
         span_h = max(1.0, bottom - top)
-        scale = min(width / span_w, height / span_h)
-        boxes = []
+
+        # One uniform factor for every box. Clamping each box to a minimum size broke the
+        # proportions, which is what "比例不对" was.
+        # Never shrink below the point where a 6pt glyph still fits the shortest
+        # box: at 0.30 the boxes were 5-8 px tall, a 6pt line is ~8 px, and the
+        # text spilled onto the next block. Below this the canvas scrolls instead.
+        fit = min(width / span_w, height / span_h)
+        scale = max(fit, MIN_SCALE)
+        total_w = span_w * scale
+        total_h = span_h * scale
+
         for l, t, w, h, text in self._items:
-            boxes.append(((l - left) * scale, (t - top) * scale,
-                          max(24.0, w * scale), max(14.0, h * scale), text))
-        return boxes, span_w * scale, span_h * scale
+            x = (l - left) * scale
+            y = (t - top) * scale
+            bw = max(8.0, w * scale)
+            bh = max(8.0, h * scale)
+            size, text = _fit(text, bw, bh)
+            canvas.create_text(x + 1, y, text=text, anchor="nw", width=int(bw),
+                               fill=FG, font=(FONT, size))
+
+        canvas.configure(scrollregion=(0, 0, max(total_w, width), max(total_h, height)))
 
 
-def _fit_size(text: str, width: float, height: float) -> int:
-    """Largest point size whose wrapped text still fits the box."""
-    size = int(max(7, min(13, height * 0.9)))
-    while size > 6:
-        per_line = max(1, int(width / (size * 0.75)))
-        lines = max(1, -(-len(text) // per_line))
-        if lines * size * 1.35 <= height + 4:
-            return size
-        size -= 1
-    return 6
+def _fit(text: str, width: float, height: float) -> tuple[int, str]:
+    """Largest point size that fits, and the text cut down to what that size fits.
+
+    Returning only a size was the bug behind the overlap: at the 6pt floor a long
+    block still needed two lines, drew taller than its box, and sat on top of the next
+    block. Cutting the text is the only way to guarantee a single block neither grows
+    nor covers its neighbour.
+    """
+    if width < 10 or height < 6:
+        return 6, ''
+    for size in range(min(13, int(max(6, height * 0.95))), 5, -1):
+        per_line = max(1, int(width / (size * 0.72)))
+        lines = max(1, int(height / (size * 1.35)))
+        room = per_line * lines
+        if len(text) <= room:
+            return size, text
+        if size == 6:
+            if room <= 1:
+                return 6, text[:max(1, room)]
+            return 6, text[:room - 1] + '…'
+    return 6, text[:1]
