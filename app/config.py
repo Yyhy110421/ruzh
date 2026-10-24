@@ -131,9 +131,12 @@ class AppConfig:
     baidu_appid: str = ""
     baidu_key: str = ""
     #: Bring-your-own-model: any OpenAI-compatible chat endpoint.
-    openai_base_url: str = ""
+    # Pre-filled with the endpoint that gives the best Chinese output for the money.
+    # It was empty, so choosing "联网·自定义大模型" did nothing at all - the engine just
+    # reported "endpoint 未设置" and the user was stuck with the 1.5B local model.
+    openai_base_url: str = "https://api.deepseek.com/v1"
     openai_api_key: str = ""
-    openai_model: str = ""
+    openai_model: str = "deepseek-chat"
     #: Prompt template for that endpoint; {src} and {tgt} are filled with language
     #: names, {src_code}/{tgt_code} with the codes.
     openai_prompt: str = ""
