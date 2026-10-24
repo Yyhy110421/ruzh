@@ -31,7 +31,6 @@ class FloatingWindow(tk.Toplevel):
     def __init__(self, master: tk.Misc) -> None:
         super().__init__(master)
         self.title("守译 · 译文")
-        self.attributes("-topmost", True)
         self.configure(bg=BODY_BG)
         self.geometry(f"{self.WIDTH}x{self.HEIGHT}+80+60")
         self.minsize(260, 200)
@@ -79,8 +78,7 @@ class FloatingWindow(tk.Toplevel):
         try:
             self.deiconify()
             self.lift()
-            self.attributes("-topmost", True)
-        except Exception:  # noqa: BLE001
+            except Exception:  # noqa: BLE001
             pass
 
     # -- internals ---------------------------------------------------------
