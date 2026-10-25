@@ -74,6 +74,49 @@ class FloatingWindow(tk.Toplevel):
             "<MouseWheel>", lambda ev: self._canvas.yview_scroll(int(-ev.delta / 120), "units")))
         self._canvas.bind("<Leave>", lambda _e: self._canvas.unbind_all("<MouseWheel>"))
 
+        # Two usability controls: Ctrl+wheel scales the text inside the panel, and the
+        # panel remembers where it was left so it does not jump back every launch.
+        self._zoom = 1.0
+        self._canvas.bind("<Control-MouseWheel>", self._on_zoom)
+        self.bind("<Configure>", self._on_configure)
+        self._restore_geometry()
+
+    # -- geometry and zoom -------------------------------------------------
+    def _state_file(self):
+        from pathlib import Path
+        return Path.home() / ".dsh" / "ruzh_floating.json"
+
+    def _restore_geometry(self) -> None:
+        import json
+        try:
+            data = json.loads(self._state_file().read_text(encoding="utf-8"))
+            geom = data.get("geometry")
+            if geom and "+" in geom:
+                self.geometry(geom)
+            self._zoom = float(data.get("zoom", 1.0)) or 1.0
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _save_geometry(self) -> None:
+        import json
+        try:
+            path = self._state_file()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({"geometry": self.winfo_geometry(),
+                                        "zoom": self._zoom}), encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _on_configure(self, event) -> None:
+        if event.widget is self:
+            self._save_geometry()
+
+    def _on_zoom(self, event) -> None:
+        step = 0.1 if event.delta > 0 else -0.1
+        self._zoom = max(0.5, min(3.0, self._zoom + step))
+        self._save_geometry()
+        self._redraw()
+
     # -- public ------------------------------------------------------------
     def update_result(self, source: str, items, translation: str = "") -> None:
         # Keep the whole source. It is capped nowhere: the header scrolls the extra lines
@@ -102,59 +145,8 @@ class FloatingWindow(tk.Toplevel):
             pass
 
     def _fit_to_content(self) -> None:
-        """Resize the window to the layout instead of making the user drag edges."""
-        if not self._items:
-            return
-        try:
-            left = min(i[0] for i in self._items)
-            top = min(i[1] for i in self._items)
-            right = max(i[0] + i[2] for i in self._items)
-            bottom = max(i[1] + i[3] for i in self._items)
-            want_w = int((right - left) * 1.15) + 90
-            want_h = int((bottom - top) * 1.15) + 130
-            screen_w = self.winfo_screenwidth() - 80
-            screen_h = self.winfo_screenheight() - 120
-            self.geometry(f"{min(want_w, screen_w)}x{min(want_h, screen_h)}+80+60")
-        except Exception:  # noqa: BLE001
-            pass
-
-    def raise_above(self) -> None:
-        """Bring the window to the front once, without pinning it above everything.
-
-        Always-on-top was forced before; it covered whatever the user was reading, so the
-        window now simply comes forward when a new translation arrives.
-        """
-        try:
-            self.deiconify()
-            self.lift()
-        except Exception:  # noqa: BLE001
-            pass
-
-    # -- internals ---------------------------------------------------------
-    def _toggle(self) -> None:
-        self._collapsed = not self._collapsed
-        self._toggle.configure(text="▸" if self._collapsed else "▾")
-        self._apply_source()
-
-    def _apply_source(self) -> None:
-        if self._collapsed:
-            text = self._source
-            if len(text) > 60:
-                text = text[:60] + "…"
-            self._source_label.configure(text=text or "（等待识别）")
-        else:
-            # Full source, wrapped over as many lines as it needs. Capping it to one
-            # clipped line meant the source could not be read at all.
-            try:
-                wrap = max(240, self.winfo_width() - 140)
-            except Exception:  # noqa: BLE001
-                wrap = 520
-            self._source_label.configure(text=self._source or "（等待识别）",
-                                         wraplength=wrap)
-
-    def _fit_to_content(self) -> None:
-        """Resize the window to the layout instead of making the user drag edges."""
-        if not self._items:
+        """Resize to the layout, unless the user already placed the window."""
+        if not self._items or getattr(self, "_sized_by_user", False):
             return
         try:
             left = min(i[0] for i in self._items)
@@ -212,8 +204,11 @@ class FloatingWindow(tk.Toplevel):
         # Everything scales by ONE factor, and that factor is whatever makes the whole
         # layout fit: no per-box minimums, no clipping at the edge, no truncation. If the
         # content is smaller than the canvas it is drawn at 1:1 rather than blown up.
+        # Ctrl+wheel multiplies this: it enlarges the text without changing the layout, so
+        # the user can read a dense screen without resizing the window.
+        zoom = max(0.5, min(3.0, getattr(self, "_zoom", 1.0)))
         fit = min(width / span_w, height / span_h)
-        scale = min(1.0, fit * 0.97)
+        scale = min(1.0, fit * 0.97) * zoom
         total_w = span_w * scale
         total_h = span_h * scale
 
