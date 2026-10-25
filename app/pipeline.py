@@ -320,6 +320,10 @@ class Pipeline(threading.Thread):
         self._cfg_lock = threading.Lock()
         self._out = out
         self._stop_event = threading.Event()
+        # Same text, same answer. A static screen re-sends identical blocks every
+        # couple of seconds; translating them again costs the full 4 s per block
+        # for no change in output.
+        self._memo: dict[str, str] = {}
         self._pause_event = threading.Event()
         self._pause_announced = False
 
@@ -872,7 +876,12 @@ class Pipeline(threading.Thread):
                 masked, tokens = numbers_mod.mask(src) if masks else (src, {})
             except Exception:  # noqa: BLE001
                 masked, tokens = src, {}
-            piece = _strip_entities(translator.translate(masked))
+            cached = self._memo.get(masked)
+            if cached is not None:
+                piece = cached
+            else:
+                piece = _strip_entities(translator.translate(masked))
+                self._memo[masked] = piece
             if tokens:
                 try:
                     piece, unrestored = numbers_mod.unmask(piece, tokens)
