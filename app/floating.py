@@ -92,6 +92,9 @@ class FloatingWindow(tk.Toplevel):
             data = json.loads(self._state_file().read_text(encoding="utf-8"))
             geom = data.get("geometry")
             if geom and "+" in geom:
+                # Restored geometry means the user decided where this window
+                # lives; auto-fit must not move it back.
+                self._sized_by_user = True
                 self.geometry(geom)
             self._zoom = float(data.get("zoom", 1.0)) or 1.0
         except Exception:  # noqa: BLE001
@@ -108,7 +111,9 @@ class FloatingWindow(tk.Toplevel):
             pass
 
     def _on_configure(self, event) -> None:
-        if event.widget is self:
+        if event.widget is self and self.winfo_ismapped():
+            # A resize after the window is on screen is the user, so pin it.
+            self._sized_by_user = True
             self._save_geometry()
 
     def _on_zoom(self, event) -> None:
